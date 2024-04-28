@@ -7,23 +7,6 @@ using Depra.Sound.Parameter;
 
 namespace Depra.Sound.Source
 {
-	public static class AudioClipParametersExtensions
-	{
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static TParameter Get<TParameter>(this IAudioClipParameters self)
-			where TParameter : IAudioClipParameter =>
-			(TParameter) self.Get(typeof(TParameter));
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void Set(this IAudioClipParameters self, params IAudioClipParameter[] parameters)
-		{
-			foreach (var parameter in parameters)
-			{
-				self.Set(parameter);
-			}
-		}
-	}
-
 	public static class AudioSourceExtensions
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

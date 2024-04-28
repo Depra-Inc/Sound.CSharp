@@ -44,7 +44,7 @@ public sealed class AudioTypeContainerTests
 	}
 
 	[Fact]
-	public void TryResolve_WhenCalledWithUnregisteredClipType_ShouldThrowNotDefinedException()
+	public void Resolve_WhenCalledWithNotRegisteredClipType_ShouldThrowNotDefinedException()
 	{
 		// Arrange:
 		var clipType = typeof(IAudioClip);
@@ -57,7 +57,7 @@ public sealed class AudioTypeContainerTests
 	}
 
 	[Fact]
-	public void TryResolve_WhenCalledWithRegisteredClipType_ShouldReturnTrue()
+	public void Resolve_WhenCalledWithRegisteredClipType_ShouldReturnSourceType()
 	{
 		// Arrange:
 		var clipType = typeof(IAudioClip);
@@ -69,5 +69,38 @@ public sealed class AudioTypeContainerTests
 
 		// Assert:
 		resolvedSourceType.Should().Be(sourceType);
+	}
+
+	[Fact]
+	public void Resolve_WhenRegisteredMultipleClipTypes_ShouldReturnCorrectSourceTypes()
+	{
+		// Arrange:
+		var clipType1 = typeof(AudioClipA);
+		var sourceType1 = typeof(IAudioSource);
+		_container.Register(clipType1, sourceType1);
+
+		var clipType2 = typeof(AudioClipB);
+		var sourceType2 = typeof(IAudioSource);
+		_container.Register(clipType2, sourceType2);
+
+		// Act:
+		var resolvedSourceType1 = _container.Resolve(clipType1);
+		var resolvedSourceType2 = _container.Resolve(clipType2);
+
+		// Assert:
+		resolvedSourceType1.Should().Be(sourceType1);
+		resolvedSourceType2.Should().Be(sourceType2);
+	}
+
+	private sealed class AudioClipA : IAudioClip
+	{
+		string IAudioClip.Name => nameof(AudioClipA);
+		float IAudioClip.Duration => 0;
+	}
+
+	private sealed class AudioClipB : IAudioClip
+	{
+		string IAudioClip.Name => nameof(AudioClipB);
+		float IAudioClip.Duration => 0;
 	}
 }

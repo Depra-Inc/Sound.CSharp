@@ -8,22 +8,19 @@ namespace Depra.Sound.Source
 {
 	public sealed class LambdaBasedAudioSourceFactory : IAudioSourceFactory
 	{
-		private readonly Func<Type, IAudioSource> _factory;
+		private readonly Action<IAudioSource> _destroyFunc;
+		private readonly Func<Type, IAudioSource> _createFunc;
 
-		public LambdaBasedAudioSourceFactory(Func<Type, IAudioSource> factory)
+		public LambdaBasedAudioSourceFactory(Func<Type, IAudioSource> createFunc, Action<IAudioSource> destroyFunc)
 		{
-			Guard.AgainstNull(factory, nameof(factory));
-			_factory = factory ?? throw new ArgumentNullException(nameof(factory));
+			Guard.AgainstNull(createFunc, nameof(createFunc));
+			Guard.AgainstNull(destroyFunc, nameof(destroyFunc));
+
+			_createFunc = createFunc;
+			_destroyFunc = destroyFunc;
 		}
 
-		IAudioSource IAudioSourceFactory.Create(Type type) => _factory(type);
-
-		void IAudioSourceFactory.Destroy(IAudioSource source)
-		{
-			if (source is IDisposable disposable)
-			{
-				disposable.Dispose();
-			}
-		}
+		IAudioSource IAudioSourceFactory.Create(Type type) => _createFunc(type);
+		void IAudioSourceFactory.Destroy(IAudioSource source) => _destroyFunc(source);
 	}
 }
