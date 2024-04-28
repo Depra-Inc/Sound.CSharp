@@ -15,7 +15,7 @@ namespace Depra.Sound.Play
 	{
 		private readonly AudioTypeContainer _types;
 		private readonly IAudioSourceFactory _factory;
-		private readonly Dictionary<IAudioClip, IAudioSource> _lookup = new();
+		private readonly Dictionary<IAudioClip, Queue<IAudioSource>> _lookup = new();
 
 		public event IAudioPlayback.PlayDelegate Started;
 		public event IAudioPlayback.StopDelegate Stopped;
@@ -39,7 +39,7 @@ namespace Depra.Sound.Play
 			source.Play(clip, parameters);
 			source.Stopped += OnStop;
 
-			_lookup.Add(clip, source);
+			Add(clip, source);
 			Started?.Invoke(clip);
 
 			void OnStop(AudioStopReason reason)
@@ -53,20 +53,39 @@ namespace Depra.Sound.Play
 		public void Stop(IAudioClip clip)
 		{
 			Guard.AgainstNull(clip, nameof(clip));
-			if (_lookup.Remove(clip, out var source) == false)
+			if (_lookup.Remove(clip, out var sources) == false)
 			{
 				return;
 			}
 
-			source.Stop();
+			foreach (var source in sources)
+			{
+				source.Stop();
+			}
+
 			Stopped?.Invoke(clip, AudioStopReason.STOPPED);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void Add(IAudioClip clip, IAudioSource source)
+		{
+			if (_lookup.TryGetValue(clip, out var sources))
+			{
+				sources.Enqueue(source);
+			}
+			else
+			{
+				_lookup.Add(clip, new Queue<IAudioSource>(new[] { source }));
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private IAudioSource RequestSource(IAudioClip clip)
 		{
-			if (_lookup.TryGetValue(clip, out var source))
+			IAudioSource source;
+			if (_lookup.TryGetValue(clip, out var sources))
 			{
+				source = sources.Peek();
 				if (source.IsPlaying)
 				{
 					source.Stop();
