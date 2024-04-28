@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Depra.Sound.Clip;
+using Depra.Sound.Exceptions;
 using Depra.Sound.Parameter;
 using Depra.Sound.Source;
 using Depra.Sound.Storage;
@@ -21,6 +22,9 @@ namespace Depra.Sound.Play
 
 		public AudioPlayback(AudioTypeContainer types, IAudioSourceFactory factory)
 		{
+			Guard.AgainstNull(types, nameof(types));
+			Guard.AgainstNull(factory, nameof(factory));
+
 			_types = types;
 			_factory = factory;
 		}
@@ -30,6 +34,8 @@ namespace Depra.Sound.Play
 
 		public void Play(IAudioClip clip, IAudioSource source, params IAudioClipParameter[] parameters)
 		{
+			Guard.AgainstNull(clip, nameof(clip));
+
 			source.Play(clip, parameters);
 			source.Stopped += OnStop;
 
@@ -46,6 +52,7 @@ namespace Depra.Sound.Play
 
 		public void Stop(IAudioClip clip)
 		{
+			Guard.AgainstNull(clip, nameof(clip));
 			if (_lookup.Remove(clip, out var source) == false)
 			{
 				return;
