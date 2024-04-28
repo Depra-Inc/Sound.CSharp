@@ -7,6 +7,23 @@ using Depra.Sound.Parameter;
 
 namespace Depra.Sound.Source
 {
+	public static class AudioClipParametersExtensions
+	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static TParameter Get<TParameter>(this IAudioClipParameters self)
+			where TParameter : IAudioClipParameter =>
+			(TParameter) self.Get(typeof(TParameter));
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Set(this IAudioClipParameters self, params IAudioClipParameter[] parameters)
+		{
+			foreach (var parameter in parameters)
+			{
+				self.Set(parameter);
+			}
+		}
+	}
+
 	public static class AudioSourceExtensions
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -19,15 +36,15 @@ namespace Depra.Sound.Source
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static TParameter GetParameter<TParameter>(this IAudioSource self)
 			where TParameter : IAudioClipParameter =>
-			(TParameter) self.GetParameter(typeof(TParameter));
+			self.Parameters.Get<TParameter>();
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void SetParameters(this IAudioSource self, params IAudioClipParameter[] parameters)
-		{
-			foreach (var parameter in parameters)
-			{
-				self.SetParameter(parameter);
-			}
-		}
+		public static void SetParameter<TParameter>(this IAudioSource self, TParameter parameter)
+			where TParameter : IAudioClipParameter =>
+			self.Parameters.Set(parameter);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void SetParameters(this IAudioSource self, params IAudioClipParameter[] parameters) =>
+			self.Parameters.Set(parameters);
 	}
 }

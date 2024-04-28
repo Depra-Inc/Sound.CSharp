@@ -81,11 +81,9 @@ public sealed class AudioPlaybackTests
 		public event IAudioSource.StopDelegate? Stopped;
 
 		bool IAudioSource.IsPlaying => false;
+		IAudioClipParameters IAudioSource.Parameters => null!;
 
 		void IAudioSource.Play(IAudioClip clip) => Started?.Invoke();
 		void IAudioSource.Stop() => Stopped?.Invoke(AudioStopReason.FINISHED);
-
-		IAudioClipParameter IAudioSource.GetParameter(Type type) => null!;
-		void IAudioSource.SetParameter(IAudioClipParameter parameter) { }
 	}
 }

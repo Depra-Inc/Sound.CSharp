@@ -13,7 +13,6 @@ namespace Depra.Sound.Play
 		event StopDelegate Stopped;
 
 		void Play(IAudioClip clip, params IAudioClipParameter[] parameters);
-
 		void Stop(IAudioClip clip);
 
 		public delegate void PlayDelegate(IAudioClip clip);

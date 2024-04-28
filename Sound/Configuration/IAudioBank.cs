@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Depra.Sound.Clip;
+using Depra.Sound.Parameter;
 
 namespace Depra.Sound.Configuration
 {
@@ -10,8 +11,10 @@ namespace Depra.Sound.Configuration
 	{
 		bool Contains(SoundId id);
 
-		IAudioClip Get(SoundId id);
+		IAudioClip GetClip(SoundId id);
 
-		IEnumerable<IAudioClip> GetAll();
+		IEnumerable<IAudioClip> GetAllClips();
+
+		IAudioClipParameter[] GetParameters(SoundId id);
 	}
 }

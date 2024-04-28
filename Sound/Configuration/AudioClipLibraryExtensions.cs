@@ -11,7 +11,7 @@ namespace Depra.Sound.Configuration
 		{
 			if (self.Contains(id))
 			{
-				clip = self.Get(id);
+				clip = self.GetClip(id);
 				return true;
 			}
 
