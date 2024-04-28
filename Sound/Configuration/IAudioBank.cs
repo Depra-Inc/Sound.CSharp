@@ -6,7 +6,7 @@ using Depra.Sound.Clip;
 
 namespace Depra.Sound.Configuration
 {
-	public interface IAudioClipLibrary
+	public interface IAudioBank
 	{
 		bool Contains(SoundId id);
 

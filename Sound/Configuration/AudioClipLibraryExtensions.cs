@@ -7,7 +7,7 @@ namespace Depra.Sound.Configuration
 {
 	public static class AudioClipLibraryExtensions
 	{
-		public static bool TryGet(this IAudioClipLibrary self, SoundId id, out IAudioClip clip)
+		public static bool TryGet(this IAudioBank self, SoundId id, out IAudioClip clip)
 		{
 			if (self.Contains(id))
 			{

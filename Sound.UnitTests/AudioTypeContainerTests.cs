@@ -2,8 +2,10 @@
 // © 2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 using Depra.Sound.Clip;
+using Depra.Sound.Exceptions;
 using Depra.Sound.Source;
 using Depra.Sound.Storage;
+using FluentAssertions;
 
 namespace Depra.Sound.UnitTests;
 
@@ -23,25 +25,26 @@ public sealed class AudioTypeContainerTests
 		var resolvedSourceType = _container.Resolve(clipType);
 
 		// Assert:
-		Assert.Equal(sourceType, resolvedSourceType);
+		resolvedSourceType.Should().Be(sourceType);
 	}
 
 	[Fact]
-	public void Register_WhenCalledWithSameClipType_ShouldThrowArgumentException()
+	public void Register_WhenCalledWithSameClipType_ShouldThrowAlreadyDefinedException()
 	{
 		// Arrange:
 		var clipType = typeof(IAudioClip);
 		var sourceType = typeof(IAudioSource);
-
-		// Act:
 		_container.Register(clipType, sourceType);
 
+		// Act:
+		var act = () => _container.Register(clipType, sourceType);
+
 		// Assert:
-		Assert.Throws<ArgumentException>(() => _container.Register(clipType, sourceType));
+		act.Should().Throw<AudioClipTypeAlreadyDefined>();
 	}
 
 	[Fact]
-	public void TryResolve_WhenCalledWithUnregisteredClipType_ShouldReturnFalse()
+	public void TryResolve_WhenCalledWithUnregisteredClipType_ShouldThrowNotDefinedException()
 	{
 		// Arrange:
 		var clipType = typeof(IAudioClip);
@@ -50,7 +53,7 @@ public sealed class AudioTypeContainerTests
 		var act = () => _container.Resolve(clipType);
 
 		// Assert:
-		Assert.Throws<ArgumentException>(act);
+		act.Should().Throw<AudioClipTypeNotDefined>();
 	}
 
 	[Fact]
@@ -65,6 +68,6 @@ public sealed class AudioTypeContainerTests
 		var resolvedSourceType = _container.Resolve(clipType);
 
 		// Assert:
-		Assert.Equal(sourceType, resolvedSourceType);
+		resolvedSourceType.Should().Be(sourceType);
 	}
 }
