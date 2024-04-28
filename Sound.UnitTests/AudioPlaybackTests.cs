@@ -17,12 +17,11 @@ public sealed class AudioPlaybackTests
 	public AudioPlaybackTests()
 	{
 		var factory = new LambdaBasedAudioSourceFactory(_ => new StubAudioSource(), _ => { });
-		var storage = new AudioSourceStorage(factory);
 		var types = new AudioTypeContainerBuilder()
 			.Register<StubAudioClip, StubAudioSource>()
 			.Build();
 
-		_playback = new AudioPlayback(types, storage);
+		_playback = new AudioPlayback(types, factory);
 	}
 
 	[Fact]

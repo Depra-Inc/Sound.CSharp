@@ -10,8 +10,17 @@ namespace Depra.Sound.Source
 {
 	public sealed class NullAudioSource : IAudioSource
 	{
-		public event IAudioSource.PlayDelegate Started;
-		public event IAudioSource.StopDelegate Stopped;
+		public event IAudioSource.PlayDelegate Started
+		{
+			add => throw new NullAudioSourceException();
+			remove => throw new NullAudioSourceException();
+		}
+
+		public event IAudioSource.StopDelegate Stopped
+		{
+			add => throw new NullAudioSourceException();
+			remove => throw new NullAudioSourceException();
+		}
 
 		bool IAudioSource.IsPlaying => throw new NullAudioSourceException();
 		IAudioClipParameters IAudioSource.Parameters => new NullAudioClipParameters();
@@ -26,9 +35,9 @@ namespace Depra.Sound.Source
 
 		private sealed class NullAudioClipParameters : IAudioClipParameters
 		{
-			public IEnumerable<Type> SupportedTypes() => throw new NullAudioSourceException();
-			public IAudioClipParameter Get(Type type) => throw new NullAudioSourceException();
-			public void Set(IAudioClipParameter parameter) => throw new NullAudioSourceException();
+			IEnumerable<Type> IAudioClipParameters.SupportedTypes() => throw new NullAudioSourceException();
+			IAudioClipParameter IAudioClipParameters.Get(Type type) => throw new NullAudioSourceException();
+			void IAudioClipParameters.Set(IAudioClipParameter parameter) => throw new NullAudioSourceException();
 		}
 	}
 }
