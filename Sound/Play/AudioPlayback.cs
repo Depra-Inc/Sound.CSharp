@@ -13,20 +13,20 @@ namespace Depra.Sound.Play
 {
 	public sealed class AudioPlayback : IAudioPlayback
 	{
-		private readonly AudioTypeContainer _types;
-		private readonly IAudioSourceFactory _factory;
-		private readonly Dictionary<IAudioClip, Queue<IAudioSource>> _lookup = new();
+		private readonly AudioTypeLookup _types;
+		private readonly AudioSourceFactoryLookup _factories;
+		private readonly Dictionary<IAudioClip, Queue<IAudioSource>> _activeSources = new();
 
 		public event IAudioPlayback.PlayDelegate Started;
 		public event IAudioPlayback.StopDelegate Stopped;
 
-		public AudioPlayback(AudioTypeContainer types, IAudioSourceFactory factory)
+		public AudioPlayback(AudioTypeLookup types, AudioSourceFactoryLookup factories)
 		{
 			Guard.AgainstNull(types, nameof(types));
-			Guard.AgainstNull(factory, nameof(factory));
+			Guard.AgainstNull(factories, nameof(factories));
 
 			_types = types;
-			_factory = factory;
+			_factories = factories;
 		}
 
 		public void Play(IAudioClip clip, params IAudioClipParameter[] parameters) =>
@@ -45,7 +45,7 @@ namespace Depra.Sound.Play
 			void OnStop(AudioStopReason reason)
 			{
 				source.Stopped -= OnStop;
-				_lookup.Remove(clip);
+				_activeSources.Remove(clip);
 				Stopped?.Invoke(clip, reason);
 			}
 		}
@@ -53,7 +53,7 @@ namespace Depra.Sound.Play
 		public void Stop(IAudioClip clip)
 		{
 			Guard.AgainstNull(clip, nameof(clip));
-			if (_lookup.Remove(clip, out var sources) == false)
+			if (_activeSources.Remove(clip, out var sources) == false)
 			{
 				return;
 			}
@@ -69,32 +69,36 @@ namespace Depra.Sound.Play
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void Add(IAudioClip clip, IAudioSource source)
 		{
-			if (_lookup.TryGetValue(clip, out var sources))
+			if (_activeSources.TryGetValue(clip, out var sources))
 			{
 				sources.Enqueue(source);
 			}
 			else
 			{
-				_lookup.Add(clip, new Queue<IAudioSource>(new[] { source }));
+				_activeSources.Add(clip, new Queue<IAudioSource>(new[] { source }));
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private IAudioSource RequestSource(IAudioClip clip)
 		{
-			IAudioSource source;
-			if (_lookup.TryGetValue(clip, out var sources))
+			if (_activeSources.TryGetValue(clip, out var sources))
 			{
-				source = sources.Peek();
-				if (source.IsPlaying)
-				{
-					source.Stop();
-				}
+				return ReuseSource(sources);
 			}
-			else
+
+			var sourceType = _types.Resolve(clip.GetType());
+			var factory = _factories.Resolve(sourceType);
+			return factory.Create();
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private IAudioSource ReuseSource(Queue<IAudioSource> sources)
+		{
+			var source = sources.Peek();
+			if (source.IsPlaying)
 			{
-				var sourceType = _types.Resolve(clip.GetType());
-				source = _factory.Create(sourceType);
+				source.Stop();
 			}
 
 			return source;

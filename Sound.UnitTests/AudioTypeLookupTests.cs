@@ -9,9 +9,9 @@ using FluentAssertions;
 
 namespace Depra.Sound.UnitTests;
 
-public sealed class AudioTypeContainerTests
+public sealed class AudioTypeLookupTests
 {
-	private readonly AudioTypeContainer _container = new();
+	private readonly AudioTypeLookup _container = new();
 
 	[Fact]
 	public void Register_WhenCalled_ShouldAddToLookup()
@@ -40,7 +40,7 @@ public sealed class AudioTypeContainerTests
 		var act = () => _container.Register(clipType, sourceType);
 
 		// Assert:
-		act.Should().Throw<AudioClipTypeAlreadyDefined>();
+		act.Should().Throw<KeyAlreadyDefinedException>();
 	}
 
 	[Fact]
@@ -53,7 +53,7 @@ public sealed class AudioTypeContainerTests
 		var act = () => _container.Resolve(clipType);
 
 		// Assert:
-		act.Should().Throw<AudioClipTypeNotDefined>();
+		act.Should().Throw<KeyNotDefinedException>();
 	}
 
 	[Fact]
