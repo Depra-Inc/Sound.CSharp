@@ -7,8 +7,7 @@ namespace Depra.Sound.Clip
 {
 	public sealed class NullAudioClip : IAudioClip
 	{
-		string IAudioClip.Name => throw new NullAudioClipException();
-		float IAudioClip.Duration => throw new NullAudioClipException();
+		AudioClipMetadata IAudioClip.Metadata() => throw new NullAudioClipException();
 
 		private sealed class NullAudioClipException : Exception
 		{

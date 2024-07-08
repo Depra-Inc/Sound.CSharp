@@ -36,8 +36,9 @@ namespace Depra.Sound.Source
 		private sealed class NullAudioClipParameters : IAudioClipParameters
 		{
 			IEnumerable<Type> IAudioClipParameters.SupportedTypes() => throw new NullAudioSourceException();
-			IAudioClipParameter IAudioClipParameters.Get(Type type) => throw new NullAudioSourceException();
-			void IAudioClipParameters.Set(IAudioClipParameter parameter) => throw new NullAudioSourceException();
+			IAudioClipParameter IAudioClipParameters.GetOrDefault(Type type) => throw new NullAudioSourceException();
+			IEnumerable<IAudioClipParameter> IAudioClipParameters.GetAll() => throw new NullAudioSourceException();
+			void IAudioClipParameters.AddOrUpdate(IAudioClipParameter parameter) => throw new NullAudioSourceException();
 		}
 	}
 }

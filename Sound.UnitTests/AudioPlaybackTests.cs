@@ -7,6 +7,7 @@ using Depra.Sound.Play;
 using Depra.Sound.Source;
 using Depra.Sound.Storage;
 using FluentAssertions;
+using NSubstitute;
 
 namespace Depra.Sound.UnitTests;
 
@@ -32,11 +33,13 @@ public sealed class AudioPlaybackTests
 	{
 		// Arrange:
 		var clip = new StubAudioClip();
+		var container = Substitute.For<IAudioClipContainer>();
+		container.Next().Returns(clip);
 		var started = false;
 		_playback.Started += _ => started = true;
 
 		// Act:
-		_playback.Play(clip);
+		_playback.Play(container);
 
 		// Assert:
 		started.Should().BeTrue();
@@ -47,9 +50,11 @@ public sealed class AudioPlaybackTests
 	{
 		// Arrange:
 		var clip = new StubAudioClip();
+		var container = Substitute.For<IAudioClipContainer>();
+		container.Next().Returns(clip);
 		var stopped = false;
 		_playback.Stopped += (_, _) => stopped = true;
-		_playback.Play(clip);
+		_playback.Play(container);
 
 		// Act:
 		_playback.Stop(clip);
@@ -73,8 +78,7 @@ public sealed class AudioPlaybackTests
 
 	private sealed class StubAudioClip : IAudioClip
 	{
-		string IAudioClip.Name => nameof(StubAudioClip);
-		float IAudioClip.Duration => 0;
+		AudioClipMetadata IAudioClip.Metadata() => new(nameof(StubAudioClip), 0);
 	}
 
 	private sealed class StubAudioSource : IAudioSource

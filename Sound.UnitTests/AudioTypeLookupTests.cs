@@ -94,13 +94,11 @@ public sealed class AudioTypeLookupTests
 
 	private sealed class AudioClipA : IAudioClip
 	{
-		string IAudioClip.Name => nameof(AudioClipA);
-		float IAudioClip.Duration => 0;
+		AudioClipMetadata IAudioClip.Metadata() => new(nameof(AudioClipA), 0);
 	}
 
 	private sealed class AudioClipB : IAudioClip
 	{
-		string IAudioClip.Name => nameof(AudioClipB);
-		float IAudioClip.Duration => 0;
+		AudioClipMetadata IAudioClip.Metadata() => new(nameof(AudioClipB), 0);
 	}
 }

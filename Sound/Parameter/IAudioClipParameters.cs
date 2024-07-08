@@ -10,8 +10,10 @@ namespace Depra.Sound.Parameter
 	{
 		IEnumerable<Type> SupportedTypes();
 
-		IAudioClipParameter Get(Type type);
+		IAudioClipParameter GetOrDefault(Type type);
 
-		void Set(IAudioClipParameter parameter);
+		IEnumerable<IAudioClipParameter> GetAll();
+
+		void AddOrUpdate(IAudioClipParameter parameter);
 	}
 }

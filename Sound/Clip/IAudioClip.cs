@@ -5,8 +5,6 @@ namespace Depra.Sound.Clip
 {
 	public interface IAudioClip
 	{
-		string Name { get; }
-
-		float Duration { get; }
+		AudioClipMetadata Metadata();
 	}
 }
