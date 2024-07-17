@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>9</LangVersion>
+        <Nullable>disable</Nullable>
+        <AssemblyName>Depra.Sound.Playback</AssemblyName>
+        <RootNamespace>Depra.Sound.Playback</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Sound\Sound.csproj" />
+    </ItemGroup>
+
+</Project>

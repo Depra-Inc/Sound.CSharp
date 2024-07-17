@@ -7,8 +7,8 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <AssemblyName>Depra.Sound.UnitTests</AssemblyName>
-        <RootNamespace>Depra.Sound.UnitTests</RootNamespace>
+        <AssemblyName>Depra.Sound.Playback.UnitTests</AssemblyName>
+        <RootNamespace>Depra.Sound.Playback.UnitTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Sound\Sound.csproj" />
+      <ProjectReference Include="..\Sound.Playback\Sound.Playback.csproj" />
     </ItemGroup>
 
 </Project>
