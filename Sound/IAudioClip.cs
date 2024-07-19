@@ -15,7 +15,6 @@ namespace Depra.Sound
 			string IAudioClip.Name => throw new NullAudioClipException();
 			float IAudioClip.Duration => throw new NullAudioClipException();
 
-
 			private sealed class NullAudioClipException : Exception
 			{
 				public NullAudioClipException() : base("Null audio clip") { }

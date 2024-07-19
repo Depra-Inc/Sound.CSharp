@@ -11,5 +11,7 @@ namespace Depra.Sound
 	public interface IAudioTrack
 	{
 		IAudioClip Play(IAudioSource source);
+
+		void Deconstruct(out IAudioClip clip, out IAudioSourceParameter[] parameters);
 	}
 }

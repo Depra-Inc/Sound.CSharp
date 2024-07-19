@@ -5,16 +5,16 @@ using System;
 
 namespace Depra.Sound
 {
-	public interface IAudioClipParameter { }
+	public interface IAudioSourceParameter { }
 
 	[Serializable]
-	public readonly struct NullParameter : IAudioClipParameter { }
+	public readonly struct NullParameter : IAudioSourceParameter { }
 
 	[Serializable]
-	public readonly struct EmptyParameter : IAudioClipParameter { }
+	public readonly struct EmptyParameter : IAudioSourceParameter { }
 
 	[Serializable]
-	public struct VolumeParameter : IAudioClipParameter
+	public struct VolumeParameter : IAudioSourceParameter
 	{
 		public float Value;
 
@@ -22,7 +22,7 @@ namespace Depra.Sound
 	}
 
 	[Serializable]
-	public struct LoopParameter : IAudioClipParameter
+	public struct LoopParameter : IAudioSourceParameter
 	{
 		public bool Value;
 
@@ -30,7 +30,7 @@ namespace Depra.Sound
 	}
 
 	[Serializable]
-	public struct PanParameter : IAudioClipParameter
+	public struct PanParameter : IAudioSourceParameter
 	{
 		public float Value;
 
@@ -38,7 +38,7 @@ namespace Depra.Sound
 	}
 
 	[Serializable]
-	public struct PitchParameter : IAudioClipParameter
+	public struct PitchParameter : IAudioSourceParameter
 	{
 		public float Value;
 

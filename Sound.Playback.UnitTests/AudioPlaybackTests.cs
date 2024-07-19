@@ -74,10 +74,10 @@ public sealed class AudioPlaybackTests
 		IEnumerable<Type> IAudioSource.SupportedTracks { get; } = supportedTypes;
 
 		void IAudioSource.Play(IAudioTrack track) => Started?.Invoke();
-
 		void IAudioSource.Stop() => Stopped?.Invoke(AudioStopReason.FINISHED);
-		IAudioClipParameter IAudioSource.Read(Type parameterType) => new EmptyParameter();
-		TParameter IAudioSource.Read<TParameter>() => throw new NotImplementedException();
-		IEnumerable<IAudioClipParameter> IAudioSource.EnumerateParameters() => Enumerable.Empty<IAudioClipParameter>();
+
+		void IAudioSource.Write(IAudioSourceParameter parameter) { }
+		IAudioSourceParameter IAudioSource.Read(Type parameterType) => new EmptyParameter();
+		IEnumerable<IAudioSourceParameter> IAudioSource.EnumerateParameters() => Enumerable.Empty<IAudioSourceParameter>();
 	}
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Depra.Sound
 {
@@ -23,10 +24,9 @@ namespace Depra.Sound
 		void Play(IAudioTrack track);
 		void Stop();
 
-		IAudioClipParameter Read(Type parameterType);
-		TParameter Read<TParameter>() where TParameter : IAudioClipParameter;
-
-		IEnumerable<IAudioClipParameter> EnumerateParameters();
+		void Write(IAudioSourceParameter parameter);
+		IAudioSourceParameter Read(Type parameterType);
+		IEnumerable<IAudioSourceParameter> EnumerateParameters();
 	}
 
 	public enum AudioStopReason
@@ -34,5 +34,24 @@ namespace Depra.Sound
 		ERROR,
 		STOPPED,
 		FINISHED,
+	}
+
+	public static class AudioSourceExtensions
+	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Play(this IAudioSource self, IAudioTrack track, params IAudioSourceParameter[] parameters)
+		{
+			foreach (var parameter in parameters)
+			{
+				self.Write(parameter);
+			}
+
+			self.Play(track);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static TParameter Read<TParameter>(this IAudioSource self)
+			where TParameter : IAudioSourceParameter =>
+			(TParameter) self.Read(typeof(TParameter));
 	}
 }
