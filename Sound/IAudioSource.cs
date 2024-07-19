@@ -21,10 +21,10 @@ namespace Depra.Sound
 		IAudioClip Current { get; }
 		IEnumerable<Type> SupportedTracks { get; }
 
-		void Play(IAudioTrack track);
 		void Stop();
+		void Play(IAudioTrack track);
+		void Play(IAudioClip clip, IEnumerable<IAudioSourceParameter> parameters);
 
-		void Write(IAudioSourceParameter parameter);
 		IAudioSourceParameter Read(Type parameterType);
 		IEnumerable<IAudioSourceParameter> EnumerateParameters();
 	}
@@ -38,17 +38,6 @@ namespace Depra.Sound
 
 	public static class AudioSourceExtensions
 	{
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void Play(this IAudioSource self, IAudioTrack track, params IAudioSourceParameter[] parameters)
-		{
-			foreach (var parameter in parameters)
-			{
-				self.Write(parameter);
-			}
-
-			self.Play(track);
-		}
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static TParameter Read<TParameter>(this IAudioSource self)
 			where TParameter : IAudioSourceParameter =>
