@@ -19,10 +19,9 @@ namespace Depra.Sound
 
 		bool IsPlaying { get; }
 		IAudioClip Current { get; }
-		IEnumerable<Type> SupportedTracks { get; }
+		IEnumerable<Type> SupportedClips { get; }
 
 		void Stop();
-		void Play(IAudioTrack track);
 		void Play(IAudioClip clip, IEnumerable<IAudioSourceParameter> parameters);
 
 		IAudioSourceParameter Read(Type parameterType);

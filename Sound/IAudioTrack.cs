@@ -5,13 +5,13 @@ namespace Depra.Sound
 {
 	public interface IAudioTrack<in TSource> : IAudioTrack where TSource : IAudioSource
 	{
-		IAudioClip Play(TSource source);
+		void Play(TSource source);
 	}
 
 	public interface IAudioTrack
 	{
-		IAudioClip Play(IAudioSource source);
+		void Play(IAudioSource source);
 
-		void Deconstruct(out IAudioClip clip, out IAudioSourceParameter[] parameters);
+		AudioTrackSegment[] Deconstruct();
 	}
 }

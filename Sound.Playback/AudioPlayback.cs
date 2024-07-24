@@ -13,7 +13,7 @@ namespace Depra.Sound.Playback
 		public void Play(IAudioTrack track, IAudioSource source)
 		{
 			source.Started += OnStart;
-			_ = track.Play(source);
+			track.Play(source);
 			source.Stopped += OnStop;
 
 			void OnStart()

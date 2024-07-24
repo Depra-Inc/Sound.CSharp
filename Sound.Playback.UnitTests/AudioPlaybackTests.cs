@@ -62,18 +62,17 @@ public sealed class AudioPlaybackTests
 		act.Should().NotThrow();
 	}
 
-	private sealed class StubAudioSource(IEnumerable<Type> supportedTypes) : IAudioSource
+	private sealed class StubAudioSource(IEnumerable<Type> supportedClips) : IAudioSource
 	{
 		public event Action? Started;
 		public event Action<AudioStopReason>? Stopped;
 
 		bool IAudioSource.IsPlaying => false;
 		IAudioClip IAudioSource.Current => new IAudioClip.Null();
-		IEnumerable<Type> IAudioSource.SupportedTracks { get; } = supportedTypes;
+		IEnumerable<Type> IAudioSource.SupportedClips { get; } = supportedClips;
 
 		void IAudioSource.Stop() => Stopped?.Invoke(AudioStopReason.FINISHED);
-		void IAudioSource.Play(IAudioTrack track) => Started?.Invoke();
-		void IAudioSource.Play(IAudioClip clip, IEnumerable<IAudioSourceParameter> parameters) { }
+		void IAudioSource.Play(IAudioClip clip, IEnumerable<IAudioSourceParameter> parameters) => Started?.Invoke();
 
 		IAudioSourceParameter IAudioSource.Read(Type parameterType) => new EmptyParameter();
 		IEnumerable<IAudioSourceParameter> IAudioSource.EnumerateParameters() => Array.Empty<IAudioSourceParameter>();
