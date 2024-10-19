@@ -7,8 +7,14 @@ namespace Depra.Sound.Playback
 {
 	public sealed class AudioPlayback : IAudioPlayback
 	{
+		private readonly IAudioSource _defaultSource;
+
 		public event Action<IAudioTrack> Started;
 		public event Action<IAudioTrack, AudioStopReason> Stopped;
+
+		public AudioPlayback(IAudioSource defaultSource) => _defaultSource = defaultSource;
+
+		public void Play(IAudioTrack track) => Play(track, _defaultSource);
 
 		public void Play(IAudioTrack track, IAudioSource source)
 		{

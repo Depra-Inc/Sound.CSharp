@@ -11,6 +11,7 @@ namespace Depra.Sound.Playback
 		event Action<IAudioTrack, AudioStopReason> Stopped;
 
 		void Stop(IAudioTrack track);
+		void Play(IAudioTrack track);
 		void Play(IAudioTrack track, IAudioSource source);
 	}
 }

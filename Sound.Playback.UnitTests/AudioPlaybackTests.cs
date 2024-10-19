@@ -10,7 +10,7 @@ public sealed class AudioPlaybackTests
 {
 	private readonly IAudioClip _clipMock;
 	private readonly IAudioSource _sourceMock;
-	private readonly IAudioPlayback _playback = new AudioPlayback();
+	private readonly IAudioPlayback _playback;
 	private readonly IAudioTrack _trackMock = Substitute.For<IAudioTrack>();
 
 	public AudioPlaybackTests()
@@ -19,6 +19,7 @@ public sealed class AudioPlaybackTests
 		_clipMock.Name.Returns("Test");
 		_clipMock.Duration.Returns(0);
 		_sourceMock = new StubAudioSource(new[] { _clipMock.GetType() });
+		_playback = new AudioPlayback(_sourceMock);
 	}
 
 	[Fact]
