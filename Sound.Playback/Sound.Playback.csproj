@@ -8,6 +8,10 @@
         <RootNamespace>Depra.Sound.Playback</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\Sound\Sound.csproj" />
     </ItemGroup>
