@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2024-2025 Depra <n.melnikov@depra.org>
 
 using FluentAssertions;
 using NSubstitute;
@@ -8,18 +8,20 @@ namespace Depra.Sound.Playback.UnitTests;
 
 public sealed class AudioPlaybackTests
 {
-	private readonly IAudioClip _clipMock;
 	private readonly IAudioSource _sourceMock;
 	private readonly IAudioPlayback _playback;
 	private readonly IAudioTrack _trackMock = Substitute.For<IAudioTrack>();
 
 	public AudioPlaybackTests()
 	{
-		_clipMock = Substitute.For<IAudioClip>();
-		_clipMock.Name.Returns("Test");
-		_clipMock.Duration.Returns(0);
-		_sourceMock = new StubAudioSource(new[] { _clipMock.GetType() });
-		_playback = new AudioPlayback(_sourceMock);
+		var trackId = TrackId.ValueOf("Test");
+		var clipMock = Substitute.For<IAudioClip>();
+		clipMock.Name.Returns(trackId.ToString());
+		clipMock.Duration.Returns(0);
+		var tableMock = Substitute.For<IAudioTable>();
+		tableMock.Get(trackId).Returns(_trackMock);
+		_sourceMock = new StubAudioSource([clipMock.GetType()]);
+		_playback = new AudioPlayback(tableMock, _sourceMock);
 	}
 
 	[Fact]

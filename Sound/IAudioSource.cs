@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// © 2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2024-2025 Depra <n.melnikov@depra.org>
 
 using System;
 using System.Collections.Generic;
@@ -41,5 +41,14 @@ namespace Depra.Sound
 		public static TParameter Read<TParameter>(this IAudioSource self)
 			where TParameter : IAudioSourceParameter =>
 			(TParameter) self.Read(typeof(TParameter));
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void Play(this IAudioSource self, IAudioTrack track)
+		{
+			foreach (var segment in track.Segments())
+			{
+				self.Play(segment.Clip, segment.Parameters);
+			}
+		}
 	}
 }
