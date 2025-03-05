@@ -5,16 +5,9 @@ namespace Depra.Sound.Playback
 {
 	public interface IAudioPlayback
 	{
-		event AudioPlaybackStarted Started;
-		event AudioPlaybackStopped Stopped;
-
-		void Stop(IAudioTrack track);
-
 		void Play(TrackId id);
 		void Play(IAudioTrack track);
 		void Play(IAudioTrack track, IAudioSource source);
+		void Stop(IAudioTrack track, IAudioSource source = null);
 	}
-
-	public delegate void AudioPlaybackStarted(IAudioTrack track);
-	public delegate void AudioPlaybackStopped(IAudioTrack track, AudioStopReason reason);
 }

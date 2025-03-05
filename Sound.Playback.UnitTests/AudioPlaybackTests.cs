@@ -29,7 +29,7 @@ public sealed class AudioPlaybackTests
 	{
 		// Arrange:
 		var started = false;
-		_playback.Started += _ => started = true;
+		//_playback.Started += _ => started = true;
 
 		// Act:
 		_playback.Play(_trackMock, _sourceMock);
@@ -43,7 +43,7 @@ public sealed class AudioPlaybackTests
 	{
 		// Arrange:
 		var stopped = false;
-		_playback.Stopped += (_, _) => stopped = true;
+		//_playback.Stopped += (_, _) => stopped = true;
 		_playback.Play(_trackMock, _sourceMock);
 
 		// Act:

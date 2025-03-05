@@ -8,9 +8,6 @@ namespace Depra.Sound.Playback
 		private readonly IAudioTable _table;
 		private readonly IAudioSource _defaultSource;
 
-		public event AudioPlaybackStarted Started;
-		public event AudioPlaybackStopped Stopped;
-
 		public AudioPlayback(IAudioTable table, IAudioSource defaultSource)
 		{
 			_table = table;
@@ -23,26 +20,26 @@ namespace Depra.Sound.Playback
 
 		public void Play(IAudioTrack track, IAudioSource source)
 		{
-			source.Started += OnStart;
-			source.Play(track);
-			source.Stopped += OnStop;
-
-			void OnStart()
+			if (source == null)
 			{
-				source.Started -= OnStart;
-				Started?.Invoke(track);
+				_defaultSource.Play(track);
 			}
-
-			void OnStop(AudioStopReason reason)
+			else
 			{
-				source.Stopped -= OnStop;
-				Stopped?.Invoke(track, reason);
+				source.Play(track);
 			}
 		}
 
-		public void Stop(IAudioTrack track)
+		public void Stop(IAudioTrack track, IAudioSource source = null)
 		{
-			Stopped?.Invoke(track, AudioStopReason.STOPPED);
+			if (source == null)
+			{
+				_defaultSource.Stop();
+			}
+			else
+			{
+				source.Stop();
+			}
 		}
 	}
 }
