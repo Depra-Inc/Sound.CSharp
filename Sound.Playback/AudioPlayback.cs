@@ -1,45 +1,73 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024-2025 Depra <n.melnikov@depra.org>
 
+using System.Buffers;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
 namespace Depra.Sound.Playback
 {
 	public sealed class AudioPlayback : IAudioPlayback
 	{
-		private readonly IAudioTable _table;
 		private readonly IAudioSource _defaultSource;
 
-		public AudioPlayback(IAudioTable table, IAudioSource defaultSource)
+		public AudioPlayback(IAudioSource defaultSource) => _defaultSource = defaultSource;
+
+		public void Stop() => _defaultSource.Stop();
+
+		public void Play(IAudioTrack track, ParameterConverter converter = null) =>
+			Play(track, _defaultSource, converter);
+
+		public void Play(IAudioTrack track, IAudioSource source, ParameterConverter converter = null)
 		{
-			_table = table;
-			_defaultSource = defaultSource;
+			var sourceSegments = track.Request();
+			var segments = converter == null ? sourceSegments : ConvertSegments(sourceSegments, converter);
+
+			Play(source ?? _defaultSource, segments);
+			track.Release(sourceSegments);
+			if (converter != null)
+			{
+				ReleaseSegments(segments);
+			}
 		}
 
-		public void Play(TrackId id) => Play(_table.Get(id));
-
-		public void Play(IAudioTrack track) => Play(track, _defaultSource);
-
-		public void Play(IAudioTrack track, IAudioSource source)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void Play(IAudioSource source, IEnumerable<AudioTrackSegment> segments)
 		{
-			if (source == null)
+			foreach (var segment in segments)
 			{
-				_defaultSource.Play(track);
-			}
-			else
-			{
-				source.Play(track);
+				source.Play(segment.Clip, segment.Parameters);
 			}
 		}
 
-		public void Stop(IAudioTrack track, IAudioSource source = null)
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private AudioTrackSegment[] ConvertSegments(AudioTrackSegment[] sourceSegments, ParameterConverter converter)
 		{
-			if (source == null)
+			var convertedSegments = ArrayPool<AudioTrackSegment>.Shared.Rent(sourceSegments.Length);
+			for (var i = 0; i < sourceSegments.Length; i++)
 			{
-				_defaultSource.Stop();
+				var segment = sourceSegments[i];
+				var parameters = ArrayPool<IAudioSourceParameter>.Shared.Rent(segment.Parameters.Length);
+				for (var j = 0; j < parameters.Length; j++)
+				{
+					parameters[j] = converter(segment.Parameters[j]);
+				}
+
+				convertedSegments[i] = new AudioTrackSegment(segment.Clip, parameters);
 			}
-			else
+
+			return convertedSegments;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void ReleaseSegments(AudioTrackSegment[] segments)
+		{
+			foreach (var segment in segments)
 			{
-				source.Stop();
+				ArrayPool<IAudioSourceParameter>.Shared.Return(segment.Parameters);
 			}
+
+			ArrayPool<AudioTrackSegment>.Shared.Return(segments);
 		}
 	}
 }

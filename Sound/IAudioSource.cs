@@ -40,15 +40,18 @@ namespace Depra.Sound
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static TParameter Read<TParameter>(this IAudioSource self)
 			where TParameter : IAudioSourceParameter =>
-			(TParameter) self.Read(typeof(TParameter));
+			(TParameter)self.Read(typeof(TParameter));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Play(this IAudioSource self, IAudioTrack track)
 		{
-			foreach (var segment in track.Segments())
+			var segments = track.Request();
+			foreach (var segment in segments)
 			{
 				self.Play(segment.Clip, segment.Parameters);
 			}
+
+			track.Release(segments);
 		}
 	}
 }

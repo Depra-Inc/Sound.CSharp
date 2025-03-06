@@ -18,39 +18,10 @@ public sealed class AudioPlaybackTests
 		var clipMock = Substitute.For<IAudioClip>();
 		clipMock.Name.Returns(trackId.ToString());
 		clipMock.Duration.Returns(0);
-		var tableMock = Substitute.For<IAudioTable>();
-		tableMock.Get(trackId).Returns(_trackMock);
+		//var tableMock = Substitute.For<IAudioTable>();
+		//tableMock.Get(trackId).Returns(_trackMock);
 		_sourceMock = new StubAudioSource([clipMock.GetType()]);
-		_playback = new AudioPlayback(tableMock, _sourceMock);
-	}
-
-	[Fact]
-	public void Play_WhenClipIsNotPlaying_ShouldStartPlayback()
-	{
-		// Arrange:
-		var started = false;
-		//_playback.Started += _ => started = true;
-
-		// Act:
-		_playback.Play(_trackMock, _sourceMock);
-
-		// Assert:
-		started.Should().BeTrue();
-	}
-
-	[Fact]
-	public void Stop_WhenClipIsPlaying_ShouldStopPlayback()
-	{
-		// Arrange:
-		var stopped = false;
-		//_playback.Stopped += (_, _) => stopped = true;
-		_playback.Play(_trackMock, _sourceMock);
-
-		// Act:
-		_playback.Stop(_trackMock);
-
-		// Assert:
-		stopped.Should().BeTrue();
+		_playback = new AudioPlayback(_sourceMock);
 	}
 
 	[Fact]
@@ -59,7 +30,7 @@ public sealed class AudioPlaybackTests
 		// Arrange:
 
 		// Act:
-		var act = () => _playback.Stop(_trackMock);
+		var act = () => _playback.Stop();
 
 		// Assert:
 		act.Should().NotThrow();

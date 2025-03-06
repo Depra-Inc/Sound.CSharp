@@ -5,6 +5,7 @@ namespace Depra.Sound
 {
 	public interface IAudioTrack
 	{
-		AudioTrackSegment[] Segments();
+		AudioTrackSegment[] Request();
+		void Release(AudioTrackSegment[] segments);
 	}
 }
