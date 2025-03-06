@@ -2,7 +2,6 @@
 // © 2024-2025 Depra <n.melnikov@depra.org>
 
 using System.Buffers;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Depra.Sound.Playback
@@ -32,7 +31,7 @@ namespace Depra.Sound.Playback
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void Play(IAudioSource source, IEnumerable<AudioTrackSegment> segments)
+		private void Play(IAudioSource source, AudioTrackSegment[] segments)
 		{
 			foreach (var segment in segments)
 			{
