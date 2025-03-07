@@ -8,19 +8,17 @@ namespace Depra.Sound.Playback.UnitTests;
 
 public sealed class AudioPlaybackTests
 {
+	private readonly IAudioClip _clipMock;
 	private readonly IAudioSource _sourceMock;
 	private readonly IAudioPlayback _playback;
-	private readonly IAudioTrack _trackMock = Substitute.For<IAudioTrack>();
 
 	public AudioPlaybackTests()
 	{
 		var trackId = TrackId.ValueOf("Test");
-		var clipMock = Substitute.For<IAudioClip>();
-		clipMock.Name.Returns(trackId.ToString());
-		clipMock.Duration.Returns(0);
-		//var tableMock = Substitute.For<IAudioTable>();
-		//tableMock.Get(trackId).Returns(_trackMock);
-		_sourceMock = new StubAudioSource([clipMock.GetType()]);
+		_clipMock = Substitute.For<IAudioClip>();
+		_clipMock.Name.Returns(trackId.ToString());
+		_clipMock.Duration.Returns(0);
+		_sourceMock = new StubAudioSource([_clipMock.GetType()]);
 		_playback = new AudioPlayback(_sourceMock);
 	}
 
@@ -34,6 +32,34 @@ public sealed class AudioPlaybackTests
 
 		// Assert:
 		act.Should().NotThrow();
+	}
+
+	[Fact]
+	public void Play_WhenClipIsNotPlaying_ShouldNotThrow()
+	{
+		// Arrange:
+		var track = new StubTrack(() => [new AudioTrackSegment(new IAudioClip.Null(), [])]);
+
+		// Act:
+		var act = () => _playback.Play(track);
+
+		// Assert:
+		act.Should().NotThrow();
+	}
+
+	[Fact]
+	public void Play_WhenClipIsNotPlaying_ShouldInvokeStarted()
+	{
+		// Arrange:
+		var started = false;
+		var track = new StubTrack(() => [new AudioTrackSegment(_clipMock, [])]);
+		_sourceMock.Started += () => started = true;
+
+		// Act:
+		_playback.Play(track);
+
+		// Assert:
+		started.Should().BeTrue();
 	}
 
 	private sealed class StubAudioSource(IEnumerable<Type> supportedClips) : IAudioSource
@@ -50,5 +76,17 @@ public sealed class AudioPlaybackTests
 
 		IAudioSourceParameter IAudioSource.Read(Type parameterType) => new EmptyParameter();
 		IEnumerable<IAudioSourceParameter> IAudioSource.EnumerateParameters() => Array.Empty<IAudioSourceParameter>();
+	}
+
+	private sealed class StubTrack(Func<IEnumerable<AudioTrackSegment>> factory) : IAudioTrack
+	{
+		void IAudioTrack.ExtractSegments(IList<AudioTrackSegment> segments)
+		{
+			var result = factory();
+			foreach (var segment in result)
+			{
+				segments.Add(segment);
+			}
+		}
 	}
 }

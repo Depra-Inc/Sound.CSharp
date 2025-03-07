@@ -6,6 +6,7 @@ namespace Depra.Sound.Playback
 	public interface IAudioPlayback
 	{
 		void Stop();
+
 		void Play(IAudioTrack track, ParameterConverter converter = null);
 		void Play(IAudioTrack track, IAudioSource source, ParameterConverter converter = null);
 	}
