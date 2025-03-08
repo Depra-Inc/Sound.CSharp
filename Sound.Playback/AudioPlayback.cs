@@ -1,53 +1,67 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024-2025 Depra <n.melnikov@depra.org>
 
-using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using ListPool;
 
+// ReSharper disable ForCanBeConvertedToForeach
 namespace Depra.Sound.Playback
 {
 	public sealed class AudioPlayback : IAudioPlayback
 	{
-		private static ArrayPool<IAudioSourceParameter> ParameterPool => ArrayPool<IAudioSourceParameter>.Shared;
-		
+		private readonly IPoolAdapter _pool;
 		private readonly IAudioSource _defaultSource;
 
-		public AudioPlayback(IAudioSource defaultSource) => _defaultSource = defaultSource;
+		public AudioPlayback(IPoolAdapter pool, IAudioSource defaultSource)
+		{
+			_pool = pool;
+			_defaultSource = defaultSource;
+		}
 
 		public void Stop() => _defaultSource.Stop();
 
-		public void Play(IAudioTrack track, ParameterConverter converter = null) => Play(track, _defaultSource, converter);
+		public void Play(IAudioTrack track, ParameterConverter converter = null) =>
+			Play(track, _defaultSource, converter);
 
 		public void Play(IAudioTrack track, IAudioSource source, ParameterConverter converter = null)
 		{
-			using var sourceSegments = new ListPool<AudioTrackSegment>();
-			using var convertedSegments = new ListPool<AudioTrackSegment>();
+			var sourceSegments = _pool.Rent<AudioTrackSegment>(8);
+			var convertedSegments = _pool.Rent<AudioTrackSegment>(8);
 			track.ExtractSegments(sourceSegments);
 
-			if (converter != null)
+			if (converter == null)
 			{
-				ConvertSegments(sourceSegments, convertedSegments, converter);
+				for (var index = 0; index < sourceSegments.Count; index++)
+				{
+					convertedSegments.Add(sourceSegments[index]);
+				}
 			}
 			else
 			{
-				convertedSegments.AddRange(sourceSegments);
+				ConvertSegments(sourceSegments, convertedSegments, converter);
 			}
 
 			Play(source ?? _defaultSource, convertedSegments);
 
-			if (converter != null)
+			_pool.Return(sourceSegments);
+			_pool.Return(convertedSegments);
+
+			for (var index = 0; index < convertedSegments.Count; index++)
 			{
-				ReleaseSegments(convertedSegments);
+				var segment = convertedSegments[index];
+				if (segment.Parameters != null)
+				{
+					_pool.Return(segment.Parameters);
+				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static void Play(IAudioSource source, IList<AudioTrackSegment> segments)
 		{
-			foreach (var segment in segments)
+			for (var index = 0; index < segments.Count; index++)
 			{
+				var segment = segments[index];
 				if (segment.IsValid())
 				{
 					source.Play(segment.Clip, segment.Parameters);
@@ -56,36 +70,25 @@ namespace Depra.Sound.Playback
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void ConvertSegments(IList<AudioTrackSegment> source,
-			IList<AudioTrackSegment> result, ParameterConverter converter)
+		private void ConvertSegments(IList<AudioTrackSegment> source, IList<AudioTrackSegment> converted,
+			ParameterConverter converter)
 		{
-			foreach (var segment in source)
+			for (var i = 0; i < source.Count; i++)
 			{
+				var segment = source[i];
 				if (!segment.IsValid())
 				{
 					continue;
 				}
 
 				var sourceParams = segment.Parameters;
-				var convertedParams = ParameterPool.Rent(sourceParams.Length);
-				for (var j = 0; j < sourceParams.Length; j++)
+				var convertedParams = _pool.Rent<IAudioSourceParameter>(sourceParams.Count);
+				for (var j = 0; j < sourceParams.Count; j++)
 				{
-					convertedParams[j] = converter(sourceParams[j]);
+					convertedParams.Add(converter(sourceParams[j]));
 				}
 
-				result.Add(new AudioTrackSegment(segment.Clip, convertedParams));
-			}
-		}
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void ReleaseSegments(IList<AudioTrackSegment> segments)
-		{
-			foreach (var segment in segments)
-			{
-				if (segment.Parameters != null)
-				{
-					ParameterPool.Return(segment.Parameters);
-				}
+				converted.Add(new AudioTrackSegment(segment.Clip, convertedParams));
 			}
 		}
 	}

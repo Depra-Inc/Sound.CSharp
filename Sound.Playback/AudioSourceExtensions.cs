@@ -1,8 +1,8 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2024-2025 Depra <n.melnikov@depra.org>
 
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using ListPool;
 
 namespace Depra.Sound.Playback
 {
@@ -11,7 +11,7 @@ namespace Depra.Sound.Playback
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Play(this IAudioSource self, IAudioTrack track)
 		{
-			using var segments = new ListPool<AudioTrackSegment>();
+			var segments = new List<AudioTrackSegment>();
 			track.ExtractSegments(segments);
 
 			foreach (var segment in segments)

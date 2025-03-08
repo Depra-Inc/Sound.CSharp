@@ -19,7 +19,7 @@ public sealed class AudioPlaybackTests
 		_clipMock.Name.Returns(trackId.ToString());
 		_clipMock.Duration.Returns(0);
 		_sourceMock = new StubAudioSource([_clipMock.GetType()]);
-		_playback = new AudioPlayback(_sourceMock);
+		//_playback = new AudioPlayback(_sourceMock);
 	}
 
 	[Fact]
@@ -72,7 +72,7 @@ public sealed class AudioPlaybackTests
 		IEnumerable<Type> IAudioSource.SupportedClips { get; } = supportedClips;
 
 		void IAudioSource.Stop() => Stopped?.Invoke(AudioStopReason.FINISHED);
-		void IAudioSource.Play(IAudioClip clip, IEnumerable<IAudioSourceParameter> parameters) => Started?.Invoke();
+		void IAudioSource.Play(IAudioClip clip, IList<IAudioSourceParameter> parameters) => Started?.Invoke();
 
 		IAudioSourceParameter IAudioSource.Read(Type parameterType) => new EmptyParameter();
 		IEnumerable<IAudioSourceParameter> IAudioSource.EnumerateParameters() => Array.Empty<IAudioSourceParameter>();
@@ -82,8 +82,7 @@ public sealed class AudioPlaybackTests
 	{
 		void IAudioTrack.ExtractSegments(IList<AudioTrackSegment> segments)
 		{
-			var result = factory();
-			foreach (var segment in result)
+			foreach (var segment in factory())
 			{
 				segments.Add(segment);
 			}

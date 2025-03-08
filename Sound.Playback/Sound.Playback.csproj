@@ -17,8 +17,4 @@
       <ProjectReference Include="..\Sound\Sound.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="ListPool" Version="2.3.6" />
-    </ItemGroup>
-
 </Project>
