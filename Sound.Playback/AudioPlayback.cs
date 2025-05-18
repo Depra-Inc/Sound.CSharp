@@ -2,6 +2,7 @@
 // © 2024-2025 Depra <n.melnikov@depra.org>
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable ForCanBeConvertedToForeach
@@ -41,7 +42,11 @@ namespace Depra.Sound.Playback
 				ConvertSegments(sourceSegments, convertedSegments, converter);
 			}
 
-			Play(source ?? _defaultSource, convertedSegments);
+			var targetSource = convertedSegments[0].Parameters.Any(x => x is GlobalAudioSourceParameter)
+				? _defaultSource
+				: source;
+
+			Play(targetSource, convertedSegments);
 
 			_pool.Return(sourceSegments);
 			_pool.Return(convertedSegments);

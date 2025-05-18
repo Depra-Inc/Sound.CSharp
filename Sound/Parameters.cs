@@ -8,13 +8,16 @@ namespace Depra.Sound
 	public interface IAudioSourceParameter { }
 
 	[Serializable]
-	public readonly struct NullParameter : IAudioSourceParameter { }
+	public sealed class GlobalAudioSourceParameter : IAudioSourceParameter { }
 
 	[Serializable]
-	public readonly struct EmptyParameter : IAudioSourceParameter { }
+	public sealed class NullParameter : IAudioSourceParameter { }
 
 	[Serializable]
-	public struct VolumeParameter : IAudioSourceParameter
+	public sealed class EmptyParameter : IAudioSourceParameter { }
+
+	[Serializable]
+	public sealed class VolumeParameter : IAudioSourceParameter
 	{
 		public float Value;
 
@@ -22,7 +25,7 @@ namespace Depra.Sound
 	}
 
 	[Serializable]
-	public struct LoopParameter : IAudioSourceParameter
+	public sealed class LoopParameter : IAudioSourceParameter
 	{
 		public bool Value;
 
@@ -30,7 +33,7 @@ namespace Depra.Sound
 	}
 
 	[Serializable]
-	public struct PanParameter : IAudioSourceParameter
+	public sealed class PanParameter : IAudioSourceParameter
 	{
 		public float Value;
 
@@ -38,7 +41,7 @@ namespace Depra.Sound
 	}
 
 	[Serializable]
-	public struct PitchParameter : IAudioSourceParameter
+	public sealed class PitchParameter : IAudioSourceParameter
 	{
 		public float Value;
 

@@ -74,6 +74,7 @@ public sealed class AudioPlaybackTests
 		void IAudioSource.Stop() => Stopped?.Invoke(AudioStopReason.FINISHED);
 		void IAudioSource.Play(IAudioClip clip, IList<IAudioSourceParameter> parameters) => Started?.Invoke();
 
+		bool IAudioSource.Write(IAudioSourceParameter parameter) => true;
 		IAudioSourceParameter IAudioSource.Read(Type parameterType) => new EmptyParameter();
 		IEnumerable<IAudioSourceParameter> IAudioSource.EnumerateParameters() => Array.Empty<IAudioSourceParameter>();
 	}
