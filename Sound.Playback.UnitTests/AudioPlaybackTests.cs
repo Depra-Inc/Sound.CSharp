@@ -1,92 +1,83 @@
-﻿// SPDX-License-Identifier: Apache-2.0
-// © 2024-2025 Depra <n.melnikov@depra.org>
-
 using FluentAssertions;
-using NSubstitute;
 
 namespace Depra.Sound.Playback.UnitTests;
 
 public sealed class AudioPlaybackTests
 {
-	private readonly IAudioClip _clipMock;
-	private readonly IAudioSource _sourceMock;
-	private readonly IAudioPlayback _playback;
-
-	public AudioPlaybackTests()
+	[Fact]
+	public void Play_AppliesDescriptionAndDynamicArgumentsBeforeStartingClip()
 	{
-		var trackId = TrackId.ValueOf("Test");
-		_clipMock = Substitute.For<IAudioClip>();
-		_clipMock.Name.Returns(trackId.ToString());
-		_clipMock.Duration.Returns(0);
-		_sourceMock = new StubAudioSource([_clipMock.GetType()]);
-		//_playback = new AudioPlayback(_sourceMock);
+		var clip = new StubClip();
+		var source = new StubAudioSource();
+		var description = new StubDescription(clip);
+		var eventId = new AudioEventId(42);
+		var table = new AudioTable([new StubBank(eventId, description)]);
+		var playback = new AudioPlayback(table, source);
+		var parameters = new[] { AudioParameter.Float(AudioParameterId.Pitch, 1.25f) };
+
+		playback.Play(eventId, parameters).Should().BeTrue();
+
+		source.PlayedClip.Should().BeSameAs(clip);
+		source.Parameters[AudioParameterId.Volume.Value].FloatValue.Should().Be(0.75f);
+		source.Parameters[AudioParameterId.Pitch.Value].FloatValue.Should().Be(1.25f);
 	}
 
 	[Fact]
-	public void Stop_WhenClipIsNotPlaying_ShouldNotThrow()
+	public void Play_UnknownEventId_ReturnsFalseWithoutStartingSource()
 	{
-		// Arrange:
+		var source = new StubAudioSource();
+		var table = new AudioTable([new StubBank(new AudioEventId(42), new StubDescription(new StubClip()))]);
+		var playback = new AudioPlayback(table, source);
 
-		// Act:
-		var act = () => _playback.Stop();
-
-		// Assert:
-		act.Should().NotThrow();
+		playback.Play(new AudioEventId(7)).Should().BeFalse();
+		source.PlayedClip.Should().BeNull();
 	}
 
-	[Fact]
-	public void Play_WhenClipIsNotPlaying_ShouldNotThrow()
+	private sealed class StubClip : IAudioClip
 	{
-		// Arrange:
-		var track = new StubTrack(() => [new AudioTrackSegment(new IAudioClip.Null(), [])]);
-
-		// Act:
-		var act = () => _playback.Play(track);
-
-		// Assert:
-		act.Should().NotThrow();
+		public string Name => "stub";
+		public float Duration => 1f;
 	}
 
-	[Fact]
-	public void Play_WhenClipIsNotPlaying_ShouldInvokeStarted()
+	private sealed class StubDescription(IAudioClip clip) : IAudioEventDescription
 	{
-		// Arrange:
-		var started = false;
-		var track = new StubTrack(() => [new AudioTrackSegment(_clipMock, [])]);
-		_sourceMock.Started += () => started = true;
+		public IAudioClip Clip { get; } = clip;
 
-		// Act:
-		_playback.Play(track);
-
-		// Assert:
-		started.Should().BeTrue();
+		public void ApplyStaticParameters(IAudioSource source) =>
+			source.SetParameter(AudioParameter.Float(AudioParameterId.Volume, 0.75f));
 	}
 
-	private sealed class StubAudioSource(IEnumerable<Type> supportedClips) : IAudioSource
+	private sealed class StubBank(AudioEventId eventId, IAudioEventDescription description) : IAudioBank
+	{
+		public bool TryGet(AudioEventId requestedId, out IAudioEventDescription result)
+		{
+			result = description;
+			return requestedId == eventId;
+		}
+	}
+
+	private sealed class StubAudioSource : IAudioSource
 	{
 		public event Action? Started;
 		public event Action<AudioStopReason>? Stopped;
 
-		bool IAudioSource.IsPlaying => false;
-		IAudioClip IAudioSource.Current => new IAudioClip.Null();
-		IEnumerable<Type> IAudioSource.SupportedClips { get; } = supportedClips;
+		public bool IsPlaying => PlayedClip != null;
+		public IAudioClip? PlayedClip { get; private set; }
+		public IAudioClip Current => PlayedClip!;
+		public Dictionary<int, AudioParameter> Parameters { get; } = new();
 
-		void IAudioSource.Stop() => Stopped?.Invoke(AudioStopReason.FINISHED);
-		void IAudioSource.Play(IAudioClip clip, IList<IAudioSourceParameter> parameters) => Started?.Invoke();
+		public void SetParameter(in AudioParameter parameter) => Parameters[parameter.Id.Value] = parameter;
 
-		bool IAudioSource.Write(IAudioSourceParameter parameter) => true;
-		IAudioSourceParameter IAudioSource.Read(Type parameterType) => new EmptyParameter();
-		IEnumerable<IAudioSourceParameter> IAudioSource.EnumerateParameters() => Array.Empty<IAudioSourceParameter>();
-	}
-
-	private sealed class StubTrack(Func<IEnumerable<AudioTrackSegment>> factory) : IAudioTrack
-	{
-		void IAudioTrack.ExtractSegments(IList<AudioTrackSegment> segments)
+		public void Stop()
 		{
-			foreach (var segment in factory())
-			{
-				segments.Add(segment);
-			}
+			PlayedClip = null;
+			Stopped?.Invoke(AudioStopReason.STOPPED);
+		}
+
+		public void Play(IAudioClip clip)
+		{
+			PlayedClip = clip;
+			Started?.Invoke();
 		}
 	}
 }
