@@ -10,7 +10,7 @@ namespace Depra.Sound.Playback
 		void Stop();
 		bool Play(AudioEventId eventId);
 		bool Play(AudioEventId eventId, IAudioSource source);
-		bool Play(AudioEventId eventId, ReadOnlySpan<AudioParameter> parameters);
-		bool Play(AudioEventId eventId, ReadOnlySpan<AudioParameter> parameters, IAudioSource source);
+		bool Play(AudioEventId eventId, ReadOnlySpan<AudioParam> parameters);
+		bool Play(AudioEventId eventId, ReadOnlySpan<AudioParam> parameters, IAudioSource source);
 	}
 }

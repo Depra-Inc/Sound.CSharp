@@ -5,11 +5,6 @@ using System;
 
 namespace Depra.Sound
 {
-	public interface IAudioSource<out TClip> : IAudioSource where TClip : IAudioClip
-	{
-		new TClip Current { get; }
-	}
-
 	public interface IAudioSource
 	{
 		event Action Started;
@@ -18,9 +13,13 @@ namespace Depra.Sound
 		bool IsPlaying { get; }
 		IAudioClip Current { get; }
 
-		void Stop();
 		void Play(IAudioClip clip);
-		void SetParameter(in AudioParameter parameter);
+	
+		void Play(IAudioClip clip,
+			ReadOnlySpan<AudioParam> staticParams,
+			ReadOnlySpan<AudioParam> dynamicParams);
+		
+		void Stop();
 	}
 
 	public enum AudioStopReason
@@ -29,5 +28,4 @@ namespace Depra.Sound
 		STOPPED,
 		FINISHED,
 	}
-
 }
