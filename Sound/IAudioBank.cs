@@ -5,8 +5,6 @@ namespace Depra.Sound
 {
 	public interface IAudioBank
 	{
-		bool Contains(AudioEventId eventId);
-
 		bool TryGet(AudioEventId eventId, out IAudioEventDescription description);
 	}
 }

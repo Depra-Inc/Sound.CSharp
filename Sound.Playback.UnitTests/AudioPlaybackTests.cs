@@ -71,8 +71,7 @@ public sealed class AudioPlaybackTests
 		var clip = new StubClip();
 		var source = new StubAudioSource();
 
-		((IAudioSource)source).Play(clip);
-
+		source.Play(clip);
 		source.PlayedClip.Should().BeSameAs(clip);
 		source.StartedCount.Should().Be(1);
 	}
@@ -107,8 +106,6 @@ public sealed class AudioPlaybackTests
 
 	private sealed class StubBank(AudioEventId eventId, IAudioEventDescription description) : IAudioBank
 	{
-		bool IAudioBank.Contains(AudioEventId eventId) => true;
-
 		public bool TryGet(AudioEventId requestedId, out IAudioEventDescription result)
 		{
 			result = description;
@@ -118,11 +115,11 @@ public sealed class AudioPlaybackTests
 
 	private sealed class StubAudioSource : IAudioSource
 	{
-		public event Action? Started;
-		public event Action<AudioStopReason>? Stopped;
+		public event Action Started;
+		public event Action<AudioStopReason> Stopped;
 
 		public bool IsPlaying => PlayedClip != null;
-		public IAudioClip? PlayedClip { get; private set; }
+		public IAudioClip PlayedClip { get; private set; }
 		public IAudioClip Current => PlayedClip!;
 		public Dictionary<int, AudioParam> Parameters { get; } = new();
 		public List<string> Operations { get; } = new();
