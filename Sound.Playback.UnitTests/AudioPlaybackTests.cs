@@ -15,7 +15,7 @@ public sealed class AudioPlaybackTests
 		var playback = new AudioPlayback(table, source);
 		var parameters = new[] { AudioParam.Float(AudioParamId.Pitch, 1.25f) };
 
-		playback.Play(eventId, parameters).Should().BeTrue();
+		playback.Play(eventId, parameters).Result.Should().BeTrue();
 
 		source.Operations.Should().Equal("parameter", "parameter", "play");
 		source.PlayedClip.Should().BeSameAs(clip);
@@ -30,7 +30,7 @@ public sealed class AudioPlaybackTests
 		var table = new AudioLibrary([new StubBank(new AudioEventId(42), new StubDescription(new StubClip()))]);
 		var playback = new AudioPlayback(table, source);
 
-		playback.Play(new AudioEventId(7)).Should().BeFalse();
+		playback.Play(new AudioEventId(7)).Result.Should().BeFalse();
 		source.PlayedClip.Should().BeNull();
 	}
 
@@ -44,7 +44,7 @@ public sealed class AudioPlaybackTests
 		var target = new object();
 		var parameters = new[] { AudioParam.Ref(new AudioParamId(15), target) };
 
-		playback.Play(eventId, parameters).Should().BeTrue();
+		playback.Play(eventId, parameters).Result.Should().BeTrue();
 
 		source.Parameters[15].ReferenceValue.Should().BeSameAs(target);
 	}
@@ -59,7 +59,7 @@ public sealed class AudioPlaybackTests
 
 		playback.Play(eventId,
 			AudioParam.Float(AudioParamId.Pitch, 1.25f),
-			AudioParam.Bool(AudioParamId.Loop, true)).Should().BeTrue();
+			AudioParam.Bool(AudioParamId.Loop, true)).Result.Should().BeTrue();
 
 		source.Parameters[AudioParamId.Pitch.Value].FloatValue.Should().Be(1.25f);
 		source.Parameters[AudioParamId.Loop.Value].IntegerValue.Should().Be(1);

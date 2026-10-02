@@ -8,9 +8,9 @@ namespace Depra.Sound
 	public interface IAudioPlayback
 	{
 		void Stop();
-		bool Play(AudioEventId eventId);
-		bool Play(AudioEventId eventId, IAudioSource source);
-		bool Play(AudioEventId eventId, ReadOnlySpan<AudioParam> parameters);
-		bool Play(AudioEventId eventId, ReadOnlySpan<AudioParam> parameters, IAudioSource source);
+		PlayHandle Play(AudioEventId eventId);
+		PlayHandle Play(AudioEventId eventId, IAudioSource source);
+		PlayHandle Play(AudioEventId eventId, ReadOnlySpan<AudioParam> parameters);
+		PlayHandle Play(AudioEventId eventId, ReadOnlySpan<AudioParam> parameters, IAudioSource source);
 	}
 }
