@@ -24,6 +24,25 @@ public sealed class AudioPlaybackTests
 	}
 
 	[Fact]
+	public void Play_BatchDescription_PlaysEachNestedDescription()
+	{
+		var firstClip = new StubClip();
+		var secondClip = new StubClip();
+		var source = new StubAudioSource();
+		var eventId = new AudioEventId(42);
+		var batch = new StubBatch(
+			new StubDescription(firstClip),
+			new StubDescription(secondClip));
+		var playback = new AudioPlayback(
+			new AudioLibrary([new StubBank(eventId, batch)]), source);
+
+		playback.Play(eventId).Result.Should().BeTrue();
+
+		source.StartedCount.Should().Be(2);
+		source.PlayedClip.Should().BeSameAs(secondClip);
+	}
+
+	[Fact]
 	public void Play_UnknownEventId_ReturnsFalseWithoutStartingSource()
 	{
 		var source = new StubAudioSource();
@@ -93,6 +112,15 @@ public sealed class AudioPlaybackTests
 		};
 
 		public ReadOnlySpan<AudioParam> StaticParameters => _staticParameters;
+	}
+
+	private sealed class StubBatch(params IAudioEventDescription[] events) :
+		IAudioEventDescription, IAudioEventBatchDescription
+	{
+		public IAudioClip Clip => null;
+		public IAudioEventContract Contract { get; } = new StubContract();
+		public int EventCount => events.Length;
+		public IAudioEventDescription GetEvent(int index) => events[index];
 	}
 
 	private sealed class StubContract : IAudioEventContract

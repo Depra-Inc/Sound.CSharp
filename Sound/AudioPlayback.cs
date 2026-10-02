@@ -47,20 +47,27 @@ namespace Depra.Sound
 					var nested = batch.GetEvent(index);
 					if (nested?.Clip != null)
 					{
-						baseSource?.Play(nested.Clip,
-							nested.Contract.GetDefaultParameters(),
-							nested.Contract.Apply(parameters));
+						if (baseSource != null)
+						{
+							PlayDescription(baseSource, nested, parameters);
+						}
 					}
 				}
 
 				return new PlayHandle(eventId, true);
 			}
 
-			var defaultParams = description.Contract.GetDefaultParameters();
-			var optionalParams = description.Contract.Apply(parameters);
-			baseSource.Play(description.Clip, defaultParams, optionalParams);
+			PlayDescription(baseSource, description, parameters);
 
 			return new PlayHandle(eventId, true);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static void PlayDescription(IAudioSource source, IAudioEventDescription description,
+			ReadOnlySpan<AudioParam> parameters)
+		{
+			var contract = description.Contract;
+			source.Play(description.Clip, contract.GetDefaultParameters(), contract.Apply(parameters));
 		}
 	}
 
