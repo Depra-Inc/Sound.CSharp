@@ -3,7 +3,7 @@
 
 namespace Depra.Sound
 {
-	public interface IAudioTable
+	public interface IAudioLibrary
 	{
 		bool TryResolve(AudioEventId eventId, out IAudioEventDescription description);
 	}

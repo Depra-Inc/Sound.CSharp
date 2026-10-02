@@ -11,12 +11,4 @@ namespace Depra.Sound
 		IAudioEventContract Contract { get; }
 		ReadOnlySpan<AudioParam> StaticParameters { get; }
 	}
-
-	public interface IAudioEventContract
-	{
-		/// <summary>
-		/// Validates dynamic parameters against this event's parameter contract.
-		/// </summary>
-		bool Validate(ReadOnlySpan<AudioParam> parameters, out string error);
-	}
 }

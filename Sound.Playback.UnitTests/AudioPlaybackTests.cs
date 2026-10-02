@@ -11,7 +11,7 @@ public sealed class AudioPlaybackTests
 		var source = new StubAudioSource();
 		var description = new StubDescription(clip);
 		var eventId = new AudioEventId(42);
-		var table = new AudioTable([new StubBank(eventId, description)]);
+		var table = new AudioLibrary([new StubBank(eventId, description)]);
 		var playback = new AudioPlayback(table, source);
 		var parameters = new[] { AudioParam.Float(AudioParamId.Pitch, 1.25f) };
 
@@ -27,7 +27,7 @@ public sealed class AudioPlaybackTests
 	public void Play_UnknownEventId_ReturnsFalseWithoutStartingSource()
 	{
 		var source = new StubAudioSource();
-		var table = new AudioTable([new StubBank(new AudioEventId(42), new StubDescription(new StubClip()))]);
+		var table = new AudioLibrary([new StubBank(new AudioEventId(42), new StubDescription(new StubClip()))]);
 		var playback = new AudioPlayback(table, source);
 
 		playback.Play(new AudioEventId(7)).Should().BeFalse();
@@ -40,7 +40,7 @@ public sealed class AudioPlaybackTests
 		var source = new StubAudioSource();
 		var eventId = new AudioEventId(42);
 		var playback = new AudioPlayback(
-			new AudioTable([new StubBank(eventId, new StubDescription(new StubClip()))]), source);
+			new AudioLibrary([new StubBank(eventId, new StubDescription(new StubClip()))]), source);
 		var target = new object();
 		var parameters = new[] { AudioParam.Ref(new AudioParamId(15), target) };
 
@@ -55,7 +55,7 @@ public sealed class AudioPlaybackTests
 		var source = new StubAudioSource();
 		var eventId = new AudioEventId(42);
 		var playback = new AudioPlayback(
-			new AudioTable([new StubBank(eventId, new StubDescription(new StubClip()))]), source);
+			new AudioLibrary([new StubBank(eventId, new StubDescription(new StubClip()))]), source);
 
 		playback.Play(eventId,
 			AudioParam.Float(AudioParamId.Pitch, 1.25f),
@@ -164,9 +164,9 @@ public sealed class AudioPlaybackTests
 		}
 	}
 
-	private sealed class AudioTable(IList<IAudioBank> banks) : IAudioTable
+	private sealed class AudioLibrary(IList<IAudioBank> banks) : IAudioLibrary
 	{
-		bool IAudioTable.TryResolve(AudioEventId eventId, out IAudioEventDescription description)
+		bool IAudioLibrary.TryResolve(AudioEventId eventId, out IAudioEventDescription description)
 		{
 			for (int index = 0, count = banks.Count; index < count; index++)
 			{

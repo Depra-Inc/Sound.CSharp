@@ -29,11 +29,11 @@ public sealed class AudioParamTests
 	[Fact]
 	public void Custom_CarriesCustomTypeAndInlinePayload()
 	{
-		var parameter = AudioParam.Custom(123, new AudioParamId(19),
+		var parameter = AudioParam.Custom(new AudioParamId(123),
 			float0: 1f, float1: 2f, integerValue: 3);
 
+		parameter.Id.Should().Be(123);
 		parameter.Type.Should().Be(AudioParamType.CUSTOM);
-		parameter.CustomTypeId.Should().Be(123);
 		parameter.Float0.Should().Be(1f);
 		parameter.Float1.Should().Be(2f);
 		parameter.IntegerValue.Should().Be(3);
@@ -43,12 +43,10 @@ public sealed class AudioParamTests
 	public void CustomReference_KeepsExistingObjectReferenceAndInlinePayload()
 	{
 		var value = new object();
+		var parameter = AudioParam.CustomRef(new AudioParamId(123), value, float0: 1f, integerValue: 3);
 
-		var parameter = AudioParam.CustomRef(123, new AudioParamId(19), value,
-			float0: 1f, integerValue: 3);
-
+		parameter.Id.Should().Be(123);
 		parameter.Type.Should().Be(AudioParamType.CUSTOM);
-		parameter.CustomTypeId.Should().Be(123);
 		parameter.ReferenceValue.Should().BeSameAs(value);
 		parameter.Float0.Should().Be(1f);
 		parameter.IntegerValue.Should().Be(3);

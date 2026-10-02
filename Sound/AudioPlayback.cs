@@ -8,12 +8,12 @@ namespace Depra.Sound
 {
 	public sealed class AudioPlayback : IAudioPlayback
 	{
-		private readonly IAudioTable _table;
+		private readonly IAudioLibrary _library;
 		private readonly IAudioSource _defaultSource;
 
-		public AudioPlayback(IAudioTable table, IAudioSource defaultSource)
+		public AudioPlayback(IAudioLibrary library, IAudioSource defaultSource)
 		{
-			_table = table;
+			_library = library;
 			_defaultSource = defaultSource;
 		}
 
@@ -34,7 +34,7 @@ namespace Depra.Sound
 
 		public bool Play(AudioEventId eventId, ReadOnlySpan<AudioParam> parameters, IAudioSource source)
 		{
-			if (!_table.TryResolve(eventId, out var description))
+			if (!_library.TryResolve(eventId, out var description))
 			{
 				return false;
 			}
@@ -44,6 +44,7 @@ namespace Depra.Sound
 				throw new AudioEventContractException(eventId, error);
 			}
 
+			source ??= _defaultSource;
 			source.Play(description.Clip, description.StaticParameters, parameters);
 			return true;
 		}

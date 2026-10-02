@@ -9,19 +9,19 @@ namespace Depra.Sound
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam Float(AudioParamId id, float value) =>
-			new(id, AudioParamType.FLOAT, 0, value, 0, 0, 0, 0, null);
+			new(id, AudioParamType.FLOAT, value, 0, 0, 0, 0, null);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static AudioParam LabeledFloat(AudioParamId id, string label, float value) =>
-			new(id, AudioParamType.LABELED_FLOAT, 0, value, 0, 0, 0, 0, null, label);
+		public static AudioParam NamedFloat(AudioParamId id, string label, float value) =>
+			new(id, AudioParamType.NAMED_FLOAT, value, 0, 0, 0, 0, null, label);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam Int(AudioParamId id, int value) =>
 			new(id, AudioParamType.INT, 0, 0, 0, 0, 0, value, null);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static AudioParam LabeledInt(AudioParamId id, string label, int value) =>
-			new(id, AudioParamType.LABELED_INT, 0, 0, 0, 0, 0, value, null, label);
+		public static AudioParam NamedInt(AudioParamId id, string label, int value) =>
+			new(id, AudioParamType.NAMED_INT, 0, 0, 0, 0, value, null, label);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam Bool(AudioParamId id, bool value) =>
@@ -33,39 +33,36 @@ namespace Depra.Sound
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam Ref<T>(AudioParamId id, T value) where T : class =>
-			new(id, AudioParamType.REFERENCE, 0, 0, 0, 0, 0, 0, value);
+			new(id, AudioParamType.REFERENCE, 0, 0, 0, 0, 0, value);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam String(AudioParamId id, string value) => Ref(id, value);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static AudioParam LabeledString(AudioParamId id, string label, string value) =>
-			new(id, AudioParamType.LABELED_STRING, 0, 0, 0, 0, 0, 0, value, label);
+		public static AudioParam NamedString(AudioParamId id, string label, string value) =>
+			new(id, AudioParamType.NAMED_STRING, 0, 0, 0, 0, 0, value, label);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static AudioParam Custom(int customTypeId, AudioParamId id,
+		public static AudioParam Custom(AudioParamId id,
 			float float0 = 0, float float1 = 0, float float2 = 0, float float3 = 0, long integerValue = 0) =>
-			new(id, AudioParamType.CUSTOM, customTypeId, float0, float1, float2, float3, integerValue, null);
+			new(id, AudioParamType.CUSTOM, float0, float1, float2, float3, integerValue, null);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static AudioParam CustomRef<T>(int customTypeId, AudioParamId id, T value,
+		public static AudioParam CustomRef<T>(AudioParamId id, T value,
 			float float0 = 0, float float1 = 0, float float2 = 0, float float3 = 0, long integerValue = 0)
-			where T : class => new(id, AudioParamType.CUSTOM, customTypeId, float0, float1, float2, float3,
-			integerValue, value);
+			where T : class => new(id, AudioParamType.CUSTOM, float0, float1, float2, float3, integerValue, value);
 
 		public readonly AudioParamId Id;
 		public readonly AudioParamType Type;
-		public readonly int CustomTypeId;
 
 		public readonly float Float0;
 		public readonly float Float1;
 		public readonly float Float2;
 		public readonly float Float3;
 		public readonly long IntegerValue;
-		public readonly object ReferenceValue;
 
-		// Optional metadata slot, used only by AudioParamType.LABELED_* variants.
-		public readonly string Label;
+		public readonly string Name;
+		public readonly object ReferenceValue;
 
 		public float FloatValue
 		{
@@ -86,20 +83,19 @@ namespace Depra.Sound
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private AudioParam(AudioParamId id, AudioParamType type, int customTypeId,
-			float float0, float float1, float float2, float float3, long integerValue, object referenceValue,
-			string label = null)
+		private AudioParam(AudioParamId id, AudioParamType type,
+			float float0, float float1, float float2, float float3, long integerValue,
+			object referenceValue, string name = "")
 		{
 			Id = id;
 			Type = type;
-			CustomTypeId = customTypeId;
+			Name = name;
 			Float0 = float0;
 			Float1 = float1;
 			Float2 = float2;
 			Float3 = float3;
 			IntegerValue = integerValue;
 			ReferenceValue = referenceValue;
-			Label = label;
 		}
 
 		public struct Builder
