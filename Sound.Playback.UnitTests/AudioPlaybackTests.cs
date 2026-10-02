@@ -97,11 +97,10 @@ public sealed class AudioPlaybackTests
 
 	private sealed class StubContract : IAudioEventContract
 	{
-		public bool Validate(ReadOnlySpan<AudioParam> parameters, out string error)
-		{
-			error = null;
-			return true;
-		}
+		public ReadOnlySpan<AudioParam> GetDefaultParameters() => ReadOnlySpan<AudioParam>.Empty;
+
+		ReadOnlySpan<AudioParam> IAudioEventContract.Apply(ReadOnlySpan<AudioParam> parameters) =>
+			ReadOnlySpan<AudioParam>.Empty;
 	}
 
 	private sealed class StubBank(AudioEventId eventId, IAudioEventDescription description) : IAudioBank
@@ -132,18 +131,18 @@ public sealed class AudioPlaybackTests
 			Started?.Invoke();
 		}
 
-		public void Play(IAudioClip clip, ReadOnlySpan<AudioParam> staticParams,
-			ReadOnlySpan<AudioParam> dynamicParams)
+		public void Play(IAudioClip clip, ReadOnlySpan<AudioParam> defaultParams,
+			ReadOnlySpan<AudioParam> optionalParams)
 		{
 			PlayedClip = clip;
-			for (int index = 0; index < staticParams.Length; index++)
+			for (int index = 0; index < defaultParams.Length; index++)
 			{
-				SetParameter(in staticParams[index]);
+				SetParameter(in defaultParams[index]);
 			}
 
-			for (int index = 0; index < dynamicParams.Length; index++)
+			for (int index = 0; index < optionalParams.Length; index++)
 			{
-				SetParameter(in dynamicParams[index]);
+				SetParameter(in optionalParams[index]);
 			}
 
 			Operations.Add("play");

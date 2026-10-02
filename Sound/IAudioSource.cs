@@ -14,11 +14,11 @@ namespace Depra.Sound
 		IAudioClip Current { get; }
 
 		void Play(IAudioClip clip);
-	
+
 		void Play(IAudioClip clip,
-			ReadOnlySpan<AudioParam> staticParams,
-			ReadOnlySpan<AudioParam> dynamicParams);
-		
+			ReadOnlySpan<AudioParam> defaultParams,
+			ReadOnlySpan<AudioParam> optionalParams);
+
 		void Stop();
 	}
 

@@ -7,9 +7,7 @@ namespace Depra.Sound
 {
 	public interface IAudioEventContract
 	{
-		/// <summary>
-		/// Validates dynamic parameters against this event's parameter contract.
-		/// </summary>
-		bool Validate(ReadOnlySpan<AudioParam> parameters, out string error);
+		ReadOnlySpan<AudioParam> GetDefaultParameters();
+		ReadOnlySpan<AudioParam> Apply(ReadOnlySpan<AudioParam> parameters);
 	}
 }

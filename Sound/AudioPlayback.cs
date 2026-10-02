@@ -39,13 +39,12 @@ namespace Depra.Sound
 				return false;
 			}
 
-			if (!description.Contract.Validate(parameters, out var error))
-			{
-				throw new AudioEventContractException(eventId, error);
-			}
+			var defaultParams = description.Contract.GetDefaultParameters();
+			var optionalParams = description.Contract.Apply(parameters);
 
 			source ??= _defaultSource;
-			source.Play(description.Clip, description.StaticParameters, parameters);
+			source.Play(description.Clip, defaultParams, optionalParams);
+
 			return true;
 		}
 	}
