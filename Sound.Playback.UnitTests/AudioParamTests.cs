@@ -7,9 +7,9 @@ public sealed class AudioParamTests
 	[Fact]
 	public void Vector3_KeepsComponentsInline()
 	{
-		var parameter = AudioParam.Vector3(new AudioParamId(17), 1f, 2f, 3f);
+		var parameter = AudioParam.Float3(new AudioParamId(17), 1f, 2f, 3f);
 
-		parameter.Type.Should().Be(AudioParamType.VECTOR3);
+		parameter.Type.Should().Be(AudioParamType.FLOAT3);
 		parameter.Float0.Should().Be(1f);
 		parameter.Float1.Should().Be(2f);
 		parameter.Float2.Should().Be(3f);

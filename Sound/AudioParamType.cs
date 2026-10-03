@@ -5,13 +5,13 @@ namespace Depra.Sound
 {
 	public enum AudioParamType : byte
 	{
-		FLOAT,
-		INT,
 		BOOL,
-		VECTOR3,
+		INT,
+		FLOAT,
+		FLOAT3,
 		REFERENCE,
-		NAMED_FLOAT,
 		NAMED_INT,
+		NAMED_FLOAT,
 		NAMED_STRING,
 		CUSTOM
 	}
