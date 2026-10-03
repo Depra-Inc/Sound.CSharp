@@ -46,19 +46,19 @@ namespace Depra.Sound
 				return new PlayHandle(eventId, true);
 			}
 
-			baseSource.Play(description.Clip, description.Contract.Merge(parameters));
+			baseSource.Play(description.Clip, description.Overlay(parameters));
 			return new PlayHandle(eventId, true);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private void PlayBatch(IAudioEventBatchDescription batch, IAudioSource source, ReadOnlySpan<AudioParam> parameters)
+		private static void PlayBatch(IAudioEventBatchDescription batch, IAudioSource source, ReadOnlySpan<AudioParam> parameters)
 		{
 			for (int index = 0, count = batch.EventCount; index < count; index++)
 			{
 				var nested = batch.GetEvent(index);
 				if (nested?.Clip != null)
 				{
-					source.Play(nested.Clip, nested.Contract.Merge(parameters));
+					source.Play(nested.Clip, nested.Overlay(parameters));
 				}
 			}
 		}

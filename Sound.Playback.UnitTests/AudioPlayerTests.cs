@@ -104,21 +104,18 @@ public sealed class AudioPlayerTests
 	private sealed class StubEventDescription(IAudioClip clip) : IAudioEventDescription
 	{
 		public IAudioClip Clip { get; } = clip;
-		public IAudioEventContract Contract { get; } = new StubContract();
+
+		ReadOnlySpan<AudioParam> IAudioEventDescription.Overlay(ReadOnlySpan<AudioParam> parameters) =>
+			ReadOnlySpan<AudioParam>.Empty;
 	}
 
-	private sealed class StubBatch(params IAudioEventDescription[] events) : IAudioEventDescription, IAudioEventBatchDescription
+	private sealed class StubBatch(params IAudioEventDescription[] events)
+		: IAudioEventDescription, IAudioEventBatchDescription
 	{
 		public IAudioClip Clip => null;
-		public IAudioEventContract Contract { get; } = new StubContract();
 		public int EventCount => events.Length;
 		public IAudioEventDescription GetEvent(int index) => events[index];
-	}
-
-	private sealed class StubContract : IAudioEventContract
-	{
-		ReadOnlySpan<AudioParam> IAudioEventContract.Merge(ReadOnlySpan<AudioParam> parameters) =>
-			ReadOnlySpan<AudioParam>.Empty;
+		ReadOnlySpan<AudioParam> IAudioEventDescription.Overlay(ReadOnlySpan<AudioParam> parameters) => ReadOnlySpan<AudioParam>.Empty;
 	}
 
 	private sealed class StubBank(AudioEventId eventId, IAudioEventDescription description) : IAudioBank
