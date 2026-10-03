@@ -5,7 +5,7 @@ using System;
 
 namespace Depra.Sound
 {
-	public interface IAudioPlayback
+	public interface IAudioPlayer
 	{
 		void Stop();
 		PlayHandle Play(AudioEventId eventId);

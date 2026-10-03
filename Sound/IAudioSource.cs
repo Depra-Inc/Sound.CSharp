@@ -15,9 +15,7 @@ namespace Depra.Sound
 
 		void Play(IAudioClip clip);
 
-		void Play(IAudioClip clip,
-			ReadOnlySpan<AudioParam> defaultParams,
-			ReadOnlySpan<AudioParam> optionalParams);
+		void Play(IAudioClip clip, ReadOnlySpan<AudioParam> parameters);
 
 		void Stop();
 	}

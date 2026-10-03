@@ -6,15 +6,15 @@ using System.Runtime.CompilerServices;
 
 namespace Depra.Sound
 {
-	public sealed class AudioPlayback : IAudioPlayback
+	public sealed class AudioPlayer : IAudioPlayer
 	{
 		private readonly IAudioLibrary _library;
 		private readonly IAudioSource _defaultSource;
 
-		public AudioPlayback(IAudioLibrary library, IAudioSource defaultSource)
+		public AudioPlayer(IAudioLibrary library, IAudioSource defaultSource)
 		{
-			_library = library;
-			_defaultSource = defaultSource;
+			_library = library ?? throw new ArgumentNullException(nameof(library));
+			_defaultSource = defaultSource ?? throw new ArgumentNullException(nameof(defaultSource));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -42,43 +42,36 @@ namespace Depra.Sound
 			var baseSource = source ?? _defaultSource;
 			if (description is IAudioEventBatchDescription batch)
 			{
-				for (int index = 0, count = batch.EventCount; index < count; index++)
-				{
-					var nested = batch.GetEvent(index);
-					if (nested?.Clip != null)
-					{
-						if (baseSource != null)
-						{
-							PlayDescription(baseSource, nested, parameters);
-						}
-					}
-				}
-
+				PlayBatch(batch, baseSource, parameters);
 				return new PlayHandle(eventId, true);
 			}
 
-			PlayDescription(baseSource, description, parameters);
-
+			baseSource.Play(description.Clip, description.Contract.Merge(parameters));
 			return new PlayHandle(eventId, true);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void PlayDescription(IAudioSource source, IAudioEventDescription description,
-			ReadOnlySpan<AudioParam> parameters)
+		private void PlayBatch(IAudioEventBatchDescription batch, IAudioSource source, ReadOnlySpan<AudioParam> parameters)
 		{
-			var contract = description.Contract;
-			source.Play(description.Clip, contract.GetDefaultParameters(), contract.Apply(parameters));
+			for (int index = 0, count = batch.EventCount; index < count; index++)
+			{
+				var nested = batch.GetEvent(index);
+				if (nested?.Clip != null)
+				{
+					source.Play(nested.Clip, nested.Contract.Merge(parameters));
+				}
+			}
 		}
 	}
 
 	public static class AudioPlaybackExtensions
 	{
-		public static PlayHandle Play(this IAudioPlayback playback, AudioEventId eventId,
+		public static PlayHandle Play(this IAudioPlayer player, AudioEventId eventId,
 			params AudioParam[] parameters) =>
-			playback.Play(eventId, parameters.AsSpan());
+			player.Play(eventId, parameters.AsSpan());
 
-		public static PlayHandle Play(this IAudioPlayback playback, AudioEventId eventId, IAudioSource source,
+		public static PlayHandle Play(this IAudioPlayer player, AudioEventId eventId, IAudioSource source,
 			params AudioParam[] parameters) =>
-			playback.Play(eventId, parameters.AsSpan(), source);
+			player.Play(eventId, parameters.AsSpan(), source);
 	}
 }

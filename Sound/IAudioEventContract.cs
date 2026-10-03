@@ -7,7 +7,6 @@ namespace Depra.Sound
 {
 	public interface IAudioEventContract
 	{
-		ReadOnlySpan<AudioParam> GetDefaultParameters();
-		ReadOnlySpan<AudioParam> Apply(ReadOnlySpan<AudioParam> parameters);
+		ReadOnlySpan<AudioParam> Merge(ReadOnlySpan<AudioParam> parameters);
 	}
 }

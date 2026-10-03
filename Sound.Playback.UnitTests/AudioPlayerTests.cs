@@ -2,17 +2,17 @@ using FluentAssertions;
 
 namespace Depra.Sound.Playback.UnitTests;
 
-public sealed class AudioPlaybackTests
+public sealed class AudioPlayerTests
 {
 	[Fact]
 	public void Play_AppliesDescriptionAndDynamicArgumentsBeforeStartingClip()
 	{
 		var clip = new StubClip();
 		var source = new StubAudioSource();
-		var description = new StubDescription(clip);
+		var description = new StubEventDescription(clip);
 		var eventId = new AudioEventId(42);
 		var table = new AudioLibrary([new StubBank(eventId, description)]);
-		var playback = new AudioPlayback(table, source);
+		var playback = new AudioPlayer(table, source);
 		var parameters = new[] { AudioParam.Float(AudioParamId.Pitch, 1.25f) };
 
 		playback.Play(eventId, parameters).Result.Should().BeTrue();
@@ -31,9 +31,9 @@ public sealed class AudioPlaybackTests
 		var source = new StubAudioSource();
 		var eventId = new AudioEventId(42);
 		var batch = new StubBatch(
-			new StubDescription(firstClip),
-			new StubDescription(secondClip));
-		var playback = new AudioPlayback(
+			new StubEventDescription(firstClip),
+			new StubEventDescription(secondClip));
+		var playback = new AudioPlayer(
 			new AudioLibrary([new StubBank(eventId, batch)]), source);
 
 		playback.Play(eventId).Result.Should().BeTrue();
@@ -46,8 +46,8 @@ public sealed class AudioPlaybackTests
 	public void Play_UnknownEventId_ReturnsFalseWithoutStartingSource()
 	{
 		var source = new StubAudioSource();
-		var table = new AudioLibrary([new StubBank(new AudioEventId(42), new StubDescription(new StubClip()))]);
-		var playback = new AudioPlayback(table, source);
+		var table = new AudioLibrary([new StubBank(new AudioEventId(42), new StubEventDescription(new StubClip()))]);
+		var playback = new AudioPlayer(table, source);
 
 		playback.Play(new AudioEventId(7)).Result.Should().BeFalse();
 		source.PlayedClip.Should().BeNull();
@@ -58,8 +58,8 @@ public sealed class AudioPlaybackTests
 	{
 		var source = new StubAudioSource();
 		var eventId = new AudioEventId(42);
-		var playback = new AudioPlayback(
-			new AudioLibrary([new StubBank(eventId, new StubDescription(new StubClip()))]), source);
+		var playback = new AudioPlayer(
+			new AudioLibrary([new StubBank(eventId, new StubEventDescription(new StubClip()))]), source);
 		var target = new object();
 		var parameters = new[] { AudioParam.Ref(new AudioParamId(15), target) };
 
@@ -73,8 +73,8 @@ public sealed class AudioPlaybackTests
 	{
 		var source = new StubAudioSource();
 		var eventId = new AudioEventId(42);
-		var playback = new AudioPlayback(
-			new AudioLibrary([new StubBank(eventId, new StubDescription(new StubClip()))]), source);
+		var playback = new AudioPlayer(
+			new AudioLibrary([new StubBank(eventId, new StubEventDescription(new StubClip()))]), source);
 
 		playback.Play(eventId,
 			AudioParam.Float(AudioParamId.Pitch, 1.25f),
@@ -101,21 +101,13 @@ public sealed class AudioPlaybackTests
 		public float Duration => 1f;
 	}
 
-	private sealed class StubDescription(IAudioClip clip) : IAudioEventDescription
+	private sealed class StubEventDescription(IAudioClip clip) : IAudioEventDescription
 	{
 		public IAudioClip Clip { get; } = clip;
 		public IAudioEventContract Contract { get; } = new StubContract();
-
-		private readonly AudioParam[] _staticParameters =
-		{
-			AudioParam.Float(AudioParamId.Volume, 0.75f),
-		};
-
-		public ReadOnlySpan<AudioParam> StaticParameters => _staticParameters;
 	}
 
-	private sealed class StubBatch(params IAudioEventDescription[] events) :
-		IAudioEventDescription, IAudioEventBatchDescription
+	private sealed class StubBatch(params IAudioEventDescription[] events) : IAudioEventDescription, IAudioEventBatchDescription
 	{
 		public IAudioClip Clip => null;
 		public IAudioEventContract Contract { get; } = new StubContract();
@@ -125,9 +117,7 @@ public sealed class AudioPlaybackTests
 
 	private sealed class StubContract : IAudioEventContract
 	{
-		public ReadOnlySpan<AudioParam> GetDefaultParameters() => ReadOnlySpan<AudioParam>.Empty;
-
-		ReadOnlySpan<AudioParam> IAudioEventContract.Apply(ReadOnlySpan<AudioParam> parameters) =>
+		ReadOnlySpan<AudioParam> IAudioEventContract.Merge(ReadOnlySpan<AudioParam> parameters) =>
 			ReadOnlySpan<AudioParam>.Empty;
 	}
 
@@ -159,18 +149,12 @@ public sealed class AudioPlaybackTests
 			Started?.Invoke();
 		}
 
-		public void Play(IAudioClip clip, ReadOnlySpan<AudioParam> defaultParams,
-			ReadOnlySpan<AudioParam> optionalParams)
+		public void Play(IAudioClip clip, ReadOnlySpan<AudioParam> parameters)
 		{
 			PlayedClip = clip;
-			for (int index = 0; index < defaultParams.Length; index++)
+			foreach (var param in parameters)
 			{
-				SetParameter(in defaultParams[index]);
-			}
-
-			for (int index = 0; index < optionalParams.Length; index++)
-			{
-				SetParameter(in optionalParams[index]);
+				SetParameter(in param);
 			}
 
 			Operations.Add("play");
