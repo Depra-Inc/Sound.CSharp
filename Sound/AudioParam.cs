@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // © 2024-2026 Depra <n.melnikov@depra.org>
 
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Depra.Sound
@@ -9,11 +10,11 @@ namespace Depra.Sound
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam Bool(AudioParamId id, bool value) =>
-			new(id, AudioParamType.BOOL, 0, 0, 0, 0, value ? 1 : 0, null);
+			new(id, AudioParamType.BOOL, 0, 0, 0, value ? 1 : 0, null);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam Int(AudioParamId id, int value) =>
-			new(id, AudioParamType.INT, 0, 0, 0, 0, value, null);
+			new(id, AudioParamType.INT, 0, 0, 0, value, null);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam NamedInt(AudioParamId id, string label, int value) =>
@@ -21,11 +22,11 @@ namespace Depra.Sound
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam Float(AudioParamId id, float value) =>
-			new(id, AudioParamType.FLOAT, value, 0, 0, 0, 0, null);
+			new(id, AudioParamType.FLOAT, value, 0, 0, 0, null);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam Float3(AudioParamId id, float x, float y, float z) =>
-			new(id, AudioParamType.FLOAT3, x, y, z, 0, 0, null);
+			new(id, AudioParamType.FLOAT3, x, y, z, 0, null);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static AudioParam NamedFloat(AudioParamId id, string label, float value) =>
@@ -104,11 +105,8 @@ namespace Depra.Sound
 			public AudioParamSet Build() => _set;
 
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			public Builder Add(AudioParam parameter)
-			{
-				_set.TryAdd(parameter);
-				return this;
-			}
+			public Builder Add(AudioParam parameter) =>
+				_set.TryAdd(parameter) ? this : throw new SetOverflowException();
 
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public Builder Volume(float value) => Add(Float(AudioParamId.Volume, value));
@@ -121,6 +119,11 @@ namespace Depra.Sound
 
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public Builder Pitch(float value) => Add(Float(AudioParamId.Pitch, value));
+		}
+
+		private sealed class SetOverflowException : Exception
+		{
+			public SetOverflowException() : base("AudioParamSet cannot contain more than eight parameters.") { }
 		}
 	}
 }

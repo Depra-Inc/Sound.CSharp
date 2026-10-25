@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace Depra.Sound.Playback.UnitTests;
+namespace Depra.Sound.UnitTests;
 
 public sealed class AudioParamTests
 {
@@ -32,7 +32,7 @@ public sealed class AudioParamTests
 		var parameter = AudioParam.Custom(new AudioParamId(123),
 			float0: 1f, float1: 2f, integerValue: 3);
 
-		parameter.Id.Should().Be(123);
+		parameter.Id.Value.Should().Be(123);
 		parameter.Type.Should().Be(AudioParamType.CUSTOM);
 		parameter.Float0.Should().Be(1f);
 		parameter.Float1.Should().Be(2f);
@@ -45,7 +45,7 @@ public sealed class AudioParamTests
 		var value = new object();
 		var parameter = AudioParam.CustomRef(new AudioParamId(123), value, float0: 1f, integerValue: 3);
 
-		parameter.Id.Should().Be(123);
+		parameter.Id.Value.Should().Be(123);
 		parameter.Type.Should().Be(AudioParamType.CUSTOM);
 		parameter.ReferenceValue.Should().BeSameAs(value);
 		parameter.Float0.Should().Be(1f);

@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace Depra.Sound.Playback.UnitTests;
+namespace Depra.Sound.UnitTests;
 
 public sealed class AudioPlayerTests
 {
@@ -105,8 +105,13 @@ public sealed class AudioPlayerTests
 	{
 		public IAudioClip Clip { get; } = clip;
 
-		ReadOnlySpan<AudioParam> IAudioEventDescription.Overlay(ReadOnlySpan<AudioParam> parameters) =>
-			ReadOnlySpan<AudioParam>.Empty;
+		ReadOnlySpan<AudioParam> IAudioEventDescription.Overlay(ReadOnlySpan<AudioParam> parameters)
+		{
+			var merged = new AudioParam[parameters.Length + 1];
+			merged[0] = AudioParam.Float(AudioParamId.Volume, 0.75f);
+			parameters.CopyTo(merged.AsSpan(1));
+			return merged;
+		}
 	}
 
 	private sealed class StubBatch(params IAudioEventDescription[] events)
